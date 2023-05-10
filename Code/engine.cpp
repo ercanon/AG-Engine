@@ -187,19 +187,94 @@ void Init(App* app)
     // - programs (and retrieve uniform indices)
     // - textures
 
+    glGenBuffers(1, &app->embeddedVertices);
+    glBindBuffer(GL_ARRAY_BUFFER, app->embeddedVertices);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenBuffers(1, &app->embeddedElements);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app->embeddedElements);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
+    glGenVertexArrays(1, &app->vao);
+    glBindVertexArray(app->vao);
+    glBindBuffer(GL_ARRAY_BUFFER, app->embeddedVertices);
+
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexV3V2), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexV3V2), (void*)(3 * sizeof(float))); //(void*)12
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app->embeddedElements);
+    glBindVertexArray(0);
+
+    app->texturedGeometryProgramIdx = LoadProgram(app, "shaders.glsl", "TEXTURED_GEOMETRY");
+    Program& textureGeometryProgram = app->programs[app->texturedGeometryProgramIdx];
+    app->programUniformTexture = glGetUniformLocation(textureGeometryProgram.handle, "uTexture");
+
+    app->diceTexIdx = LoadTexture2D(app, "dice.png");
+    app->whiteTexIdx = LoadTexture2D(app, "color_white.png");
+    app->blackTexIdx = LoadTexture2D(app, "color_black.png");
+    app->normalTexIdx = LoadTexture2D(app, "color_normal.png");
+    app->magentaTexIdx = LoadTexture2D(app, "color_magenta.png");
+
+    app->glInfo.glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    app->glInfo.glRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+    app->glInfo.glVendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    app->glInfo.glShadingVersion = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    GLint numExtensions = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+
+    for (GLint i = 0; i < numExtensions; ++i)
+        app->glInfo.glExtensions.push_back(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, GLuint(i))));
+
     app->mode = Mode_TexturedQuad;
 }
 
 void Gui(App* app)
 {
     ImGui::Begin("Info");
-    ImGui::Text("FPS: %f", 1.0f/app->deltaTime);
+    ImGui::Text("FPS: %f", 1.0f / app->deltaTime);
     ImGui::End();
+
+    if (app->input.keys[Key::K_SPACE] == ButtonState::BUTTON_PRESSED)
+        ImGui::OpenPopup("OpenGL Info");
+
+    if (ImGui::BeginPopup("OpenGL Info"))
+    {
+        ImGui::Text("Version: %s", app->glInfo.glVersion.c_str());
+        ImGui::Text("Renderer: %s", app->glInfo.glRenderer.c_str());
+        ImGui::Text("Vendor: %s", app->glInfo.glVendor.c_str());
+        ImGui::Text("GLSL Version: %s", app->glInfo.glShadingVersion.c_str());
+
+        ImGui::Separator();
+        ImGui::Text("Extensions");
+        for (GLint i = 0; i < app->glInfo.glExtensions.size(); ++i)
+            ImGui::Text("GLSL Version: %s", app->glInfo.glExtensions[i].c_str());
+
+        ImGui::EndPopup();
+    };
 }
 
 void Update(App* app)
 {
     // You can handle app->input keyboard/mouse here
+    /*for (u64 i = 0; i < app->programs.size(); i++)
+    {
+        Program& program = app->programs[i];
+        u64 currentTimestamp = GetFileLastWriteTimestamp(program.filepath.c_str());
+        if (currentTimestamp > program.lastWriteTimestamp)
+        {
+            glDeleteProgram(program.handle);
+            String programSource = ReadTextFile(program.filepath.c_str());
+            const char* programName = program.programName.c_str();
+            program.handle = CreateProgramFromSource(programSource, programName);
+            program.lastWriteTimestamp = currentTimestamp;
+        }
+    }*/
 }
 
 void Render(App* app)
@@ -217,6 +292,28 @@ void Render(App* app)
                 //   (...and make its texture sample from unit 0)
                 // - bind the vao
                 // - glDrawElements() !!!
+
+                glClearColor(1.0, 0.1, 0.1, 1.0);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                glViewport(0, 0, app->displaySize.x, app->displaySize.y);
+
+                Program& programTexturedGeometry = app->programs[app->texturedGeometryProgramIdx];
+                glUseProgram(programTexturedGeometry.handle);
+                glBindVertexArray(app->vao);
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC0_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                glUniform1i(app->programUniformTexture, 0);
+                glActiveTexture(GL_TEXTURE);
+                GLuint textureHandle = app->textures[app->diceTexIdx].handle;
+                glBindTexture(GL_TEXTURE_2D, textureHandle);
+
+                glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(u16), GL_UNSIGNED_SHORT, 0);
+
+                glBindVertexArray(0);
+                glUseProgram(0);
             }
             break;
 

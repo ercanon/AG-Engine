@@ -36,6 +36,36 @@ struct Program
     u64                lastWriteTimestamp; // What is this for?
 };
 
+struct OpenGLInfo
+{
+    std::string                 glVersion;
+    std::string                 glRenderer;
+    std::string                 glVendor;
+    std::string                 glShadingVersion;
+    std::vector<std::string>    glExtensions;
+};
+
+struct VertexV3V2
+{
+    glm::vec3 pos;
+    glm::vec2 uv;
+
+};
+
+const VertexV3V2 vertices[] =
+{
+    {glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0)},
+    {glm::vec3(0.5, -0.5, 0.0), glm::vec2(1.0, 0.0)},
+    {glm::vec3(0.5,  0.5, 0.0), glm::vec2(1.0, 1.0)},
+    {glm::vec3(-0.5,  0.5, 0.0), glm::vec2(0.0, 1.0)},
+};
+
+const u16 indices[] =
+{
+    0,1,2,
+    0,2,3
+};
+
 enum Mode
 {
     Mode_TexturedQuad,
@@ -83,6 +113,8 @@ struct App
 
     // VAO object to link our screen filling quad with our textured quad shader
     GLuint vao;
+
+    OpenGLInfo glInfo;
 };
 
 void Init(App* app);
