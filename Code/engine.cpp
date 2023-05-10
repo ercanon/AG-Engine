@@ -187,6 +187,7 @@ void Init(App* app)
     // - programs (and retrieve uniform indices)
     // - textures
 
+    //Geometry
     glGenBuffers(1, &app->embeddedVertices);
     glBindBuffer(GL_ARRAY_BUFFER, app->embeddedVertices);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -201,8 +202,6 @@ void Init(App* app)
     glGenVertexArrays(1, &app->vao);
     glBindVertexArray(app->vao);
     glBindBuffer(GL_ARRAY_BUFFER, app->embeddedVertices);
-
-
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexV3V2), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexV3V2), (void*)(3 * sizeof(float))); //(void*)12
@@ -214,11 +213,12 @@ void Init(App* app)
     Program& textureGeometryProgram = app->programs[app->texturedGeometryProgramIdx];
     app->programUniformTexture = glGetUniformLocation(textureGeometryProgram.handle, "uTexture");
 
-    app->diceTexIdx = LoadTexture2D(app, "dice.png");
-    app->whiteTexIdx = LoadTexture2D(app, "color_white.png");
-    app->blackTexIdx = LoadTexture2D(app, "color_black.png");
-    app->normalTexIdx = LoadTexture2D(app, "color_normal.png");
+    app->diceTexIdx =    LoadTexture2D(app, "dice.png");
+    app->whiteTexIdx =   LoadTexture2D(app, "color_white.png");
+    app->blackTexIdx =   LoadTexture2D(app, "color_black.png");
+    app->normalTexIdx =  LoadTexture2D(app, "color_normal.png");
     app->magentaTexIdx = LoadTexture2D(app, "color_magenta.png");
+
 
     app->glInfo.glVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
     app->glInfo.glRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
@@ -303,7 +303,7 @@ void Render(App* app)
                 glBindVertexArray(app->vao);
 
                 glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC0_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                 glUniform1i(app->programUniformTexture, 0);
                 glActiveTexture(GL_TEXTURE);

@@ -54,10 +54,10 @@ struct VertexV3V2
 
 const VertexV3V2 vertices[] =
 {
-    {glm::vec3(-0.5, -0.5, 0.0), glm::vec2(0.0, 0.0)},
-    {glm::vec3(0.5, -0.5, 0.0), glm::vec2(1.0, 0.0)},
-    {glm::vec3(0.5,  0.5, 0.0), glm::vec2(1.0, 1.0)},
-    {glm::vec3(-0.5,  0.5, 0.0), glm::vec2(0.0, 1.0)},
+    {glm::vec3(-0.5, -0.5, 0.0),    glm::vec2(0.0, 0.0)},   // Bottom-Left Vertex
+    {glm::vec3( 0.5,  -0.5, 0.0),   glm::vec2(1.0, 0.0)},   // Bottom-Right Vertex
+    {glm::vec3( 0.5,  0.5,  0.0),   glm::vec2(1.0, 1.0)},   // Top-Right Vertex
+    {glm::vec3(-0.5, 0.5,  0.0),    glm::vec2(0.0, 1.0)},   // Top-Left Vertex
 };
 
 const u16 indices[] =
