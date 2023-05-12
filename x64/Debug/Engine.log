@@ -1,3 +1,2 @@
 ﻿  engine.cpp
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\engine.cpp(296,48): warning C4305: 'argumento': truncamiento de 'double' a 'GLfloat'
   Engine.vcxproj -> C:\Users\raulc\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe
