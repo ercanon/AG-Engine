@@ -1,2 +1,26 @@
-﻿  engine.cpp
+﻿  MeshImporter.cpp
+  engine.cpp
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\engine.cpp(283,23): warning C4018: '<': no coinciden signed/unsigned
+  platform.cpp
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\platform.cpp(42,36): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\platform.cpp(43,36): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\platform.cpp(44,29): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\platform.cpp(45,29): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+  Generando código...
   Engine.vcxproj -> C:\Users\raulc\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe

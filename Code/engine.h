@@ -5,36 +5,9 @@
 #pragma once
 
 #include "platform.h"
+#include "MeshImporter.h"
 #include <glad/glad.h>
 
-typedef glm::vec2  vec2;
-typedef glm::vec3  vec3;
-typedef glm::vec4  vec4;
-typedef glm::ivec2 ivec2;
-typedef glm::ivec3 ivec3;
-typedef glm::ivec4 ivec4;
-
-struct Image
-{
-    void* pixels;
-    ivec2 size;
-    i32   nchannels;
-    i32   stride;
-};
-
-struct Texture
-{
-    GLuint      handle;
-    std::string filepath;
-};
-
-struct Program
-{
-    GLuint             handle;
-    std::string        filepath;
-    std::string        programName;
-    u64                lastWriteTimestamp; // What is this for?
-};
 
 struct OpenGLInfo
 {
@@ -45,30 +18,10 @@ struct OpenGLInfo
     std::vector<std::string>    glExtensions;
 };
 
-struct VertexV3V2
-{
-    glm::vec3 pos;
-    glm::vec2 uv;
-
-};
-
-const VertexV3V2 vertices[] =
-{
-    {glm::vec3(-0.5, -0.5,  0.0),    glm::vec2(0.0, 0.0)},   // Bottom-Left Vertex
-    {glm::vec3( 0.5, -0.5,  0.0),    glm::vec2(1.0, 0.0)},   // Bottom-Right Vertex
-    {glm::vec3( 0.5,  0.5,  0.0),    glm::vec2(1.0, 1.0)},   // Top-Right Vertex
-    {glm::vec3(-0.5,  0.5,  0.0),    glm::vec2(0.0, 1.0)},   // Top-Left Vertex
-};
-
-const u16 indices[] =
-{
-    0, 1, 2,
-    0, 2, 3
-};
-
 enum Mode
 {
     Mode_TexturedQuad,
+    Mode_TexturedMesh,
     Mode_Count
 };
 
@@ -88,10 +41,15 @@ struct App
     ivec2 displaySize;
 
     std::vector<Texture>  textures;
+    std::vector<Material> materials;
+    std::vector<Mesh>     meshes;
+    std::vector<Model>    models;
     std::vector<Program>  programs;
 
     // program indices
     u32 texturedGeometryProgramIdx;
+    u32 texturedMeshProgramIdx;
+    u32 texturedMeshProgram_uTexture;
     
     // texture indices
     u32 diceTexIdx;
@@ -99,6 +57,7 @@ struct App
     u32 blackTexIdx;
     u32 normalTexIdx;
     u32 magentaTexIdx;
+    u32 patrickMeshIdx;
 
     // Mode
     Mode mode;
@@ -116,6 +75,9 @@ struct App
 
     OpenGLInfo glInfo;
 };
+
+
+u32 LoadTexture2D(App* app, const char* filepath);
 
 void Init(App* app);
 
