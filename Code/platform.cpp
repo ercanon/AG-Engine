@@ -15,7 +15,7 @@
 #include <unistd.h>
 #endif
 
-#include "engine.h"
+#include "Engine.h"
 
 #include <GLFW/glfw3.h>
 #include <stdio.h>
@@ -236,7 +236,7 @@ int main()
                 if      (app.input.mouseButtons[i] == BUTTON_PRESS)   app.input.mouseButtons[i] = BUTTON_PRESSED;
                 else if (app.input.mouseButtons[i] == BUTTON_RELEASE) app.input.mouseButtons[i] = BUTTON_IDLE;
 
-        app.input.mouseDelta = glm::vec2(0.0f, 0.0f);
+        app.input.mouseDelta = vec2(0.0f, 0.0f);
 
         // Render
         Render(&app);

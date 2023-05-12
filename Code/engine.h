@@ -4,18 +4,20 @@
 
 #pragma once
 
-#include "platform.h"
-#include "MeshImporter.h"
+#include "Platform.h"
+#include "Importer.h"
+#include "Camera.h"
+#include "GameObject.h"
 #include <glad/glad.h>
 
 
 struct OpenGLInfo
 {
-    std::string                 glVersion;
-    std::string                 glRenderer;
-    std::string                 glVendor;
-    std::string                 glShadingVersion;
-    std::vector<std::string>    glExtensions;
+    string         glVersion;
+    string         glRenderer;
+    string         glVendor;
+    string         glShadingVersion;
+    vector<string> glExtensions;
 };
 
 enum Mode
@@ -38,13 +40,16 @@ struct App
     char gpuName[64];
     char openGlVersion[64];
 
+    Camera camera;
     ivec2 displaySize;
 
-    std::vector<Texture>  textures;
-    std::vector<Material> materials;
-    std::vector<Mesh>     meshes;
-    std::vector<Model>    models;
-    std::vector<Program>  programs;
+    vector<Texture>  textures;
+    vector<Material> materials;
+    vector<Mesh>     meshes;
+    vector<Model>    models;
+    vector<Program>  programs;
+
+    vector<GameObject> gameObject;
 
     // program indices
     u32 texturedGeometryProgramIdx;
@@ -77,7 +82,7 @@ struct App
 };
 
 
-u32 LoadTexture2D(App* app, const char* filepath);
+GLuint CreateProgramFromSource(String programSource, const char* shaderName);
 
 void Init(App* app);
 

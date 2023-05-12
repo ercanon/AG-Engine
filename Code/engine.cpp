@@ -5,10 +5,8 @@
 // graphics related GUI options, and so on.
 //
 
-#include "engine.h"
+#include "Engine.h"
 #include <imgui.h>
-#include <stb_image.h>
-#include <stb_image_write.h>
 
 GLuint CreateProgramFromSource(String programSource, const char* shaderName)
 {
@@ -30,10 +28,10 @@ GLuint CreateProgramFromSource(String programSource, const char* shaderName)
         programSource.str
     };
     const GLint vertexShaderLengths[] = {
-        (GLint) strlen(versionString),
-        (GLint) strlen(shaderNameDefine),
-        (GLint) strlen(vertexShaderDefine),
-        (GLint) programSource.len
+        (GLint)strlen(versionString),
+        (GLint)strlen(shaderNameDefine),
+        (GLint)strlen(vertexShaderDefine),
+        (GLint)programSource.len
     };
     const GLchar* fragmentShaderSource[] = {
         versionString,
@@ -42,10 +40,10 @@ GLuint CreateProgramFromSource(String programSource, const char* shaderName)
         programSource.str
     };
     const GLint fragmentShaderLengths[] = {
-        (GLint) strlen(versionString),
-        (GLint) strlen(shaderNameDefine),
-        (GLint) strlen(fragmentShaderDefine),
-        (GLint) programSource.len
+        (GLint)strlen(versionString),
+        (GLint)strlen(shaderNameDefine),
+        (GLint)strlen(fragmentShaderDefine),
+        (GLint)programSource.len
     };
 
     GLuint vshader = glCreateShader(GL_VERTEX_SHADER);
@@ -87,95 +85,6 @@ GLuint CreateProgramFromSource(String programSource, const char* shaderName)
     glDeleteShader(fshader);
 
     return programHandle;
-}
-
-u32 LoadProgram(App* app, const char* filepath, const char* programName)
-{
-    String programSource = ReadTextFile(filepath);
-
-    Program program = {};
-    program.handle = CreateProgramFromSource(programSource, programName);
-    program.filepath = filepath;
-    program.programName = programName;
-    program.lastWriteTimestamp = GetFileLastWriteTimestamp(filepath);
-    app->programs.push_back(program);
-
-    return app->programs.size() - 1;
-}
-
-Image LoadImage(const char* filename)
-{
-    Image img = {};
-    stbi_set_flip_vertically_on_load(true);
-    img.pixels = stbi_load(filename, &img.size.x, &img.size.y, &img.nchannels, 0);
-    if (img.pixels)
-    {
-        img.stride = img.size.x * img.nchannels;
-    }
-    else
-    {
-        ELOG("Could not open file %s", filename);
-    }
-    return img;
-}
-
-void FreeImage(Image image)
-{
-    stbi_image_free(image.pixels);
-}
-
-GLuint CreateTexture2DFromImage(Image image)
-{
-    GLenum internalFormat = GL_RGB8;
-    GLenum dataFormat     = GL_RGB;
-    GLenum dataType       = GL_UNSIGNED_BYTE;
-
-    switch (image.nchannels)
-    {
-        case 3: dataFormat = GL_RGB; internalFormat = GL_RGB8; break;
-        case 4: dataFormat = GL_RGBA; internalFormat = GL_RGBA8; break;
-        default: ELOG("LoadTexture2D() - Unsupported number of channels");
-    }
-
-    GLuint texHandle;
-    glGenTextures(1, &texHandle);
-    glBindTexture(GL_TEXTURE_2D, texHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size.x, image.size.y, 0, dataFormat, dataType, image.pixels);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    return texHandle;
-}
-
-u32 LoadTexture2D(App* app, const char* filepath)
-{
-    for (u32 texIdx = 0; texIdx < app->textures.size(); ++texIdx)
-        if (app->textures[texIdx].filepath == filepath)
-            return texIdx;
-
-    Image image = LoadImage(filepath);
-
-    if (image.pixels)
-    {
-        Texture tex = {};
-        tex.handle = CreateTexture2DFromImage(image);
-        tex.filepath = filepath;
-
-        u32 texIdx = app->textures.size();
-        app->textures.push_back(tex);
-
-        FreeImage(image);
-        return texIdx;
-    }
-    else
-    {
-        return UINT32_MAX;
-    }
 }
 
 GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
@@ -230,6 +139,7 @@ GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
 
     return vaoHandle;
 }
+
 
 void Init(App* app)
 {
@@ -288,11 +198,11 @@ void Init(App* app)
         texturedMeshProgram.vertexInputLayout.attributes.push_back({ (u8)attributeLocation, (u8)attribSize });
     }
 
-    app->diceTexIdx =    LoadTexture2D(app, "dice.png");
-    app->whiteTexIdx =   LoadTexture2D(app, "color_white.png");
-    app->blackTexIdx =   LoadTexture2D(app, "color_black.png");
-    app->normalTexIdx =  LoadTexture2D(app, "color_normal.png");
-    app->magentaTexIdx = LoadTexture2D(app, "color_magenta.png");
+    app->diceTexIdx =     LoadTexture2D(app, "dice.png");
+    app->whiteTexIdx =    LoadTexture2D(app, "color_white.png");
+    app->blackTexIdx =    LoadTexture2D(app, "color_black.png");
+    app->normalTexIdx =   LoadTexture2D(app, "color_normal.png");
+    app->magentaTexIdx =  LoadTexture2D(app, "color_magenta.png");
     app->patrickMeshIdx = LoadModel(app, "Patrick/Patrick.obj");
 }
 
@@ -323,6 +233,8 @@ void Gui(App* app)
 
 void Update(App* app)
 {
+    //HandleInput(app);
+
     for (u64 i = 0; i < app->programs.size(); i++)
     {
         Program& program = app->programs[i];
@@ -336,6 +248,12 @@ void Update(App* app)
             program.lastWriteTimestamp = currentTimestamp;
         }
     }
+
+
+    app->camera.Update(app);
+
+    for (u64 i = 0; i < app->gameObject.size(); i++)
+        app->gameObject[i].Update(app);
 }
 
 void Render(App* app)
@@ -399,4 +317,3 @@ void Render(App* app)
         default:;
     }
 }
-
