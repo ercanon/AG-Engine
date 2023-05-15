@@ -7,7 +7,7 @@ Camera::Camera()
 	projection = perspective(radians(60.0f), aspectRatio, zNear, zFar);
 
 	//Camera Position
-	pos = vec3(0.0f, 0.0f, -3.0f);
+	pos = vec3(0.0f, 0.0f, -5.0f);
 	//Camera Direction
 	target = vec3(0.0f, 0.0f, 0.0f);
 	direction = normalize(pos - target);

@@ -7,6 +7,7 @@
 
 #include "Engine.h"
 #include <imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 GLuint CreateProgramFromSource(String programSource, const char* shaderName)
 {
@@ -156,6 +157,17 @@ void Init(App* app)
 
     app->mode = Mode_TexturedMesh;
 
+    GLint maxUniformBufferSize;
+    GLint uniformBlockAligment;
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
+
+    GLuint bufferHandle;
+    glGenBuffers(1, &bufferHandle);
+    glBindBuffer(GL_UNIFORM_BUFFER, bufferHandle);
+    glBufferData(GL_UNIFORM_BUFFER, maxUniformBufferSize, NULL, GL_STREAM_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     // Geometry
     glGenBuffers(1, &app->embeddedVertices);
     glBindBuffer(GL_ARRAY_BUFFER, app->embeddedVertices);
@@ -247,8 +259,26 @@ void Update(App* app)
             program.handle = CreateProgramFromSource(programSource, programName);
             program.lastWriteTimestamp = currentTimestamp;
         }
-    }
 
+        /*
+        if (i == app->texturedMeshProgramIdx)
+        {
+            glBindBuffer(GL_UNIFORM_BUFFER, bufferHandle);
+
+            u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+            u32 bufferHead = 0;
+
+            memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldMatrix")), sizeof(mat4));
+            bufferHead += sizeof(mat4);
+
+            memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldViewProjectionMatrix")), sizeof(mat4));
+            bufferHead += sizeof(mat4);
+
+            glUnmapBuffer(GL_UNIFORM_BUFFER);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        }
+        */
+    }
 
     app->camera.Update(app);
 
@@ -261,30 +291,30 @@ void Render(App* app)
     switch (app->mode)
     {
         case Mode_TexturedQuad:
-            {
-                glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        {
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-                glViewport(0, 0, app->displaySize.x, app->displaySize.y);
+            glViewport(0, 0, app->displaySize.x, app->displaySize.y);
 
-                Program& programTexturedGeometry = app->programs[app->texturedGeometryProgramIdx];
-                glUseProgram(programTexturedGeometry.handle);
-                glBindVertexArray(app->vao);
+            Program& programTexturedGeometry = app->programs[app->texturedGeometryProgramIdx];
+            glUseProgram(programTexturedGeometry.handle);
+            glBindVertexArray(app->vao);
 
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                glUniform1i(app->programUniformTexture, 0);
-                glActiveTexture(GL_TEXTURE0);
-                GLuint textureHandle = app->textures[app->diceTexIdx].handle;
-                glBindTexture(GL_TEXTURE_2D, textureHandle);
+            glUniform1i(app->programUniformTexture, 0);
+            glActiveTexture(GL_TEXTURE0);
+            GLuint textureHandle = app->textures[app->diceTexIdx].handle;
+            glBindTexture(GL_TEXTURE_2D, textureHandle);
 
-                glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(u16), GL_UNSIGNED_SHORT, 0);
+            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(u16), GL_UNSIGNED_SHORT, 0);
 
-                glBindVertexArray(0);
-                glUseProgram(0);
-            }
-            break;
+            glBindVertexArray(0);
+            glUseProgram(0);
+        }
+        break;
         case Mode::Mode_TexturedMesh:
         {
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -309,6 +339,9 @@ void Render(App* app)
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.albedoTextureIdx].handle);
                 glUniform1i(app->texturedMeshProgram_uTexture, 0);
+                
+                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(app->camera.view));
+                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "projection"), 1, GL_FALSE, glm::value_ptr(app->camera.projection));
 
                 Submesh& submesh = mesh.submeshes[i];
                 glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);

@@ -1,28 +1,28 @@
 ﻿  Camera.cpp
   Engine.cpp
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.cpp(193,23): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.cpp(205,23): warning C4018: '<': signed/unsigned mismatch
   GameObject.cpp
   Importer.cpp
   Platform.cpp
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(42,36): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(42,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(43,36): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(43,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(44,29): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(44,29): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(45,29): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
+C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(45,29): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-  Generando código...
-  Engine.vcxproj -> C:\Users\raulc\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe
+  Generating Code...
+  Engine.vcxproj -> C:\Users\raulci\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe
