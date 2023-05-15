@@ -20,5 +20,11 @@ public:
 
 	vec3 upVector;
 	vec3 upAxis;
+	vec3 forwardAxis;
 	vec3 rightAxis;
+
+private:
+	void RotateAround(float dt, vec3& newFront, vec3& newUp);
+	void ControlCamera(App* app);
+	void UpdateCameraVectors();
 };

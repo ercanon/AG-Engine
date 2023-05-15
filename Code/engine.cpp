@@ -141,6 +141,11 @@ GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
     return vaoHandle;
 }
 
+u32 Align(u32 value, u32 aligment)
+{
+    return (value + aligment - 1) & ~(aligment - 1);
+}
+
 
 void Init(App* app)
 {
@@ -162,9 +167,8 @@ void Init(App* app)
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
 
-    GLuint bufferHandle;
-    glGenBuffers(1, &bufferHandle);
-    glBindBuffer(GL_UNIFORM_BUFFER, bufferHandle);
+    glGenBuffers(1, &app->bufferHandle);
+    glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
     glBufferData(GL_UNIFORM_BUFFER, maxUniformBufferSize, NULL, GL_STREAM_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -260,24 +264,19 @@ void Update(App* app)
             program.lastWriteTimestamp = currentTimestamp;
         }
 
-        /*
-        if (i == app->texturedMeshProgramIdx)
-        {
-            glBindBuffer(GL_UNIFORM_BUFFER, bufferHandle);
+        glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
 
-            u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-            u32 bufferHead = 0;
+        u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+        u32 bufferHead = 0;
 
-            memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldMatrix")), sizeof(mat4));
-            bufferHead += sizeof(mat4);
+        memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldMatrix")), sizeof(mat4));
+        bufferHead += sizeof(mat4);
 
-            memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldViewProjectionMatrix")), sizeof(mat4));
-            bufferHead += sizeof(mat4);
+        memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldViewProjectionMatrix")), sizeof(mat4));
+        bufferHead += sizeof(mat4);
 
-            glUnmapBuffer(GL_UNIFORM_BUFFER);
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        }
-        */
+        glUnmapBuffer(GL_UNIFORM_BUFFER);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
     app->camera.Update(app);

@@ -13,6 +13,17 @@ void GameObject::Update(App* app)
 {
     mat4 world = TransformPositionScale(vec3(2.5f, 1.5f, -2.0f), vec3(0.45f));
     mat4 worldViewProjection = app->camera.projection * app->camera.view * world;
+
+    bufferHead = Align(bufferHead, uniformBlockAligment);
+
+    localParamsOffset = bufferHead;
+
+    memcpy(bufferData + bufferHead, value_ptr(worldMatrix), sizeof(mat4));
+    bufferHead += sizeof(mat4);
+
+    memcpy(bufferData + bufferHead, value_ptr(worldViewProjection), sizeof(mat4));
+    bufferHead += sizeof(mat4);
+    localParamSize = bufferHead - localParamsOffset;
 }
 
 mat4 GameObject::TransformScale(const vec3& scaleFactors)
