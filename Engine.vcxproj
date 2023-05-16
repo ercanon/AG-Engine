@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code\BufferManager.cpp" />
     <ClCompile Include="Code\Camera.cpp" />
     <ClCompile Include="Code\Engine.cpp" />
     <ClCompile Include="Code\GameObject.cpp" />

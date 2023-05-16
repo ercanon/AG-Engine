@@ -141,11 +141,6 @@ GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
     return vaoHandle;
 }
 
-u32 Align(u32 value, u32 aligment)
-{
-    return (value + aligment - 1) & ~(aligment - 1);
-}
-
 
 void Init(App* app)
 {
@@ -265,7 +260,6 @@ void Update(App* app)
     }
 
     app->camera.Update(app);
-
 
     //Buffer Lights
     app->globalParamsOffset = app->cBuffer.head;

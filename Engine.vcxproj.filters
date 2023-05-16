@@ -42,22 +42,25 @@
     <ClCompile Include="ThirdParty\glad\include\glad\glad.c">
       <Filter>Glad</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Engine.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Platform.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\stb\stb.cpp">
       <Filter>Stb</Filter>
     </ClCompile>
+    <ClCompile Include="Code\BufferManager.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
     <ClCompile Include="Code\Camera.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Engine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Code\GameObject.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Code\Importer.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Platform.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,22 +89,22 @@
     <ClInclude Include="ThirdParty\imgui-docking\imstb_truetype.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Engine.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="ThirdParty\glad\include\glad\glad.h">
       <Filter>Glad</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\glad\include\glad\khrplatform.h">
       <Filter>Glad</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Platform.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="ThirdParty\stb\stb_image.h">
       <Filter>Stb</Filter>
     </ClInclude>
+    <ClInclude Include="Code\BufferManager.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
     <ClInclude Include="Code\Camera.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Engine.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Code\GameObject.h">
@@ -110,7 +113,7 @@
     <ClInclude Include="Code\Importer.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Code\BufferManager.h">
+    <ClInclude Include="Code\Platform.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>

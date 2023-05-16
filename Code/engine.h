@@ -83,8 +83,6 @@ struct App
 
 GLuint CreateProgramFromSource(String programSource, const char* shaderName);
 
-u32 Align(u32 value, u32 aligment);
-
 void Init(App* app);
 
 void Gui(App* app);
