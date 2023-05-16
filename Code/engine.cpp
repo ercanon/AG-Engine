@@ -162,10 +162,8 @@ void Init(App* app)
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &app->uniformBlockAligment);
 
-    glGenBuffers(1, &app->cBuffer.head);
-    glBindBuffer(GL_UNIFORM_BUFFER, app->cBuffer.head);
-    glBufferData(GL_UNIFORM_BUFFER, maxUniformBufferSize, NULL, GL_STREAM_DRAW);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    app->cBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
+    app->globalParamsOffset = app->cBuffer.head;
 
     // Geometry
     glGenBuffers(1, &app->embeddedVertices);
@@ -261,7 +259,8 @@ void Update(App* app)
 
     app->camera.Update(app);
 
-    //Buffer Lights
+
+    MapBuffer(app->cBuffer, GL_WRITE_ONLY);
     app->globalParamsOffset = app->cBuffer.head;
 
     PushVec3(app->cBuffer, app->camera.pos);

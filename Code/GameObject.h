@@ -1,6 +1,9 @@
 
 #pragma once
 
+
+struct Buffer;
+
 enum ObjectType
 {
 	Model,
@@ -50,7 +53,7 @@ private:
 	Light light;
 
 	//General
-	ObjectType type;
+	ObjectType oType;
 	vec3 pos;
 	mat4 worldMatrix;
 	mat4 worldViewProjection;

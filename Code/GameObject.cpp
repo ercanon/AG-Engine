@@ -13,7 +13,7 @@ void GameObject::Update(App* app)
 
 void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer buffer)
 {
-    switch (type)
+    switch (oType)
     {
     case Model:
         AlignHead(buffer, uniformBlockAligment);
