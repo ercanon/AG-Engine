@@ -3,50 +3,52 @@
 // The third parameter of the LoadProgram function in engine.cpp allows
 // chosing the shader you want to load by name.
 
-struct Light
-{
-	unsigned int type;
-	vec3		 color;
-	vec3		 direction;
-	vec3		 position;
-};
+//struct Light
+//{
+//	unsigned int type;
+//	vec3		 color;
+//	vec3		 direction;
+//	vec3		 position;
+//};
 
-#ifdef TEXTURED_GEOMETRY
-	#if defined(VERTEX) ///////////////////////////////////////////////////
-	
-	layout(location=0) in vec3 aPosition;
-	layout(location=1) in vec2 aTexCoord;
-	
-	out vec2 vTexCoord;
-	
-	void main()
-	{
-		vTexCoord = aTexCoord;
-		gl_Position = vec4(aPosition, 1.0);
-	}
-	
-	
-	#elif defined(FRAGMENT) ///////////////////////////////////////////////
-	
-	in vec2 vTexCoord;
-	
-	uniform sampler2D uTexture;
-	
-	layout(location=0) out vec4 oColor;
-	
-	void main()
-	{
-		oColor = texture(uTexture, vTexCoord);
-	}
-	#endif
-#endif
+//#ifdef TEXTURED_GEOMETRY
+//	#if defined(VERTEX) ///////////////////////////////////////////////////
+//	
+//	layout(location=0) in vec3 aPosition;
+//	layout(location=1) in vec2 aTexCoord;
+//	
+//	out vec2 vTexCoord;
+//	
+//	void main()
+//	{
+//		vTexCoord = aTexCoord;
+//		gl_Position = vec4(aPosition, 1.0);
+//	}
+//	
+//	
+//	#elif defined(FRAGMENT) ///////////////////////////////////////////////
+//	
+//	in vec2 vTexCoord;
+//	
+//	uniform sampler2D uTexture;
+//	
+//	layout(location=0) out vec4 oColor;
+//	
+//	void main()
+//	{
+//		oColor = texture(uTexture, vTexCoord);
+//	}
+//	#endif
+//#endif
+
+
 
 #ifdef TEXTURED_MESH
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
-	layout(location=0) in vec3 aPosition;
-	layout(location=1) in vec3 aNormal;
-	layout(location=2) in vec2 aTexCoord;
+	layout(location = 0) in vec3 aPosition;
+	layout(location = 1) in vec3 aNormal;
+	layout(location = 2) in vec2 aTexCoord;
 	//layout(location=3) in vec3 aTangent;
 	//layout(location=4) in vec3 aBitangent;
 	

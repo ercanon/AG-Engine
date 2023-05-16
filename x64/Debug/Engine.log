@@ -1,7 +1,1 @@
-﻿  Engine.cpp
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.h(32,1): warning C4099: 'App': nombre de tipo visto anteriormente usando 'struct' ahora se ve usando 'class'
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31): message : vea la declaración de 'App'
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.h(41,37): warning C4305: 'argumento predeterminado': truncamiento de 'int' a 'bool'
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.h(41,60): warning C4806: '!=': operación no segura: ningún valor del tipo 'bool' promovido al tipo 'int' puede igualar la constante proporcionada
-C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.cpp(208,23): warning C4018: '<': no coinciden signed/unsigned
-  Engine.vcxproj -> C:\Users\raulc\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe
+﻿  Engine.vcxproj -> C:\Users\raulc\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe
