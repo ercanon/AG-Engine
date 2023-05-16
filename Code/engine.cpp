@@ -320,8 +320,8 @@ void Render(App* app)
             Program& texturedMeshProgram = app->programs[app->texturedMeshProgramIdx];
             glUseProgram(texturedMeshProgram.handle);
 
-            Model& model = app->models[app->patrickMeshIdx];
-            Mesh& mesh = app->meshes[model.meshIdx];
+            GameObject& go = app->gameObject[app->patrickMeshIdx];
+            Mesh& mesh = app->meshes[go.MeshID()];
             u32 blockOffset = 0;
             u32 blockSize = sizeof(mat4) * 2;
             glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->bufferHandle, blockOffset, blockSize);
@@ -332,7 +332,7 @@ void Render(App* app)
                 GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
                 glBindVertexArray(vao);
 
-                u32 submeshMaterialIdx = model.materialIdx[i];
+                u32 submeshMaterialIdx = go.MaterialID(i);
                 Material& submeshMaterial = app->materials[submeshMaterialIdx];
 
                 glActiveTexture(GL_TEXTURE0);

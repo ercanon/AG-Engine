@@ -281,10 +281,10 @@ u32 LoadModel(App* app, const char* filename)
     Mesh& mesh = app->meshes.back();
     u32 meshIdx = (u32)app->meshes.size() - 1u;
 
-    app->models.push_back(Model{});
-    Model& model = app->models.back();
-    model.meshIdx = meshIdx;
-    u32 modelIdx = (u32)app->models.size() - 1u;
+    app->gameObject.push_back(GameObject{});
+    GameObject& go = app->gameObject.back();
+    go.MeshID(meshIdx);
+    u32 modelIdx = (u32)app->gameObject.size() - 1u;
 
     String directory = GetDirectoryPart(MakeString(filename));
 
@@ -297,7 +297,7 @@ u32 LoadModel(App* app, const char* filename)
         ProcessAssimpMaterial(app, scene->mMaterials[i], material, directory);
     }
 
-    ProcessAssimpNode(scene, scene->mRootNode, &mesh, baseMeshMaterialIndex, model.materialIdx);
+    ProcessAssimpNode(scene, scene->mRootNode, &mesh, baseMeshMaterialIndex, go.GetMaterialID());
 
     aiReleaseImport(scene);
 

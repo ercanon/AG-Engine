@@ -92,11 +92,6 @@ struct Mesh
 	GLuint			vertexBufferHandle;
 	GLuint			indexBufferHandle;
 };
-struct  Model
-{
-	u32			meshIdx;
-	vector<u32>	materialIdx;
-};
 struct Program
 {
 	GLuint             handle;
