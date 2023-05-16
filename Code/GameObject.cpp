@@ -5,28 +5,30 @@ GameObject::GameObject()
 
 }
 
-GameObject::~GameObject()
-{
-}
-
 void GameObject::Update(App* app)
 {
     worldMatrix = TransformPositionScale(vec3(2.5f, 1.5f, -2.0f), vec3(0.45f));
     worldViewProjection = app->camera.projection * app->camera.view * worldMatrix;
 }
 
-void GameObject::HandleBuffer(GLint uniformBlockAligment, u32 bufferHead, u8* bufferData)
+void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer buffer)
 {
-    bufferHead = Align(bufferHead, uniformBlockAligment);
+    switch (type)
+    {
+    case Model:
+        AlignHead(buffer, uniformBlockAligment);
 
-    localParamsOffset = bufferHead;
+        localParamsOffset = buffer.head;
 
-    memcpy(bufferData + bufferHead, value_ptr(worldMatrix), sizeof(mat4));
-    bufferHead += sizeof(mat4);
+        PushMat4(buffer, worldMatrix);
+        PushMat4(buffer, worldViewProjection);
+        localParamSize = buffer.head - localParamsOffset;
+        break;
+    case Lightning:
 
-    memcpy(bufferData + bufferHead, value_ptr(worldViewProjection), sizeof(mat4));
-    bufferHead += sizeof(mat4);
-    localParamSize = bufferHead - localParamsOffset;
+        break;
+    default:;
+    }
 }
 
 mat4 GameObject::TransformScale(const vec3& scaleFactors)

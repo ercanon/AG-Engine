@@ -1,13 +1,19 @@
 
 #pragma once
 
+enum ObjectType
+{
+	Model,
+	Lightning
+};
+
 class GameObject
 {
 public:
 	GameObject();
-	virtual ~GameObject();
+	virtual ~GameObject() {};
 	void Update(App* app);
-	void HandleBuffer(GLint uniformBlockAligment, u32 bufferHead, u8* bufferData);
+	void HandleBuffer(GLint uniformBlockAligment, Buffer buffer);
 
 	mat4 TransformScale(const vec3& scaleFactors);
 	mat4 TransformPositionScale(const vec3& pos, const vec3& scaleFactors);
@@ -23,9 +29,15 @@ public:
 	virtual mat4 GetProjection() { return worldViewProjection; }
 
 private:
+	//Model
 	u32			meshIdx;
 	vector<u32>	materialIdx;
 
+	//Light
+	Light light;
+
+	//General
+	ObjectType type;
 	vec3 pos;
 	mat4 worldMatrix;
 	mat4 worldViewProjection;
@@ -33,9 +45,15 @@ private:
 	u32 localParamSize;
 };
 
+enum LightType
+{
+	Directional,
+	Point
+};
+
 struct Light
 {
-	int type;
+	LightType type;
 	vec3 color;
-	float range;
+	vec3 direction;
 };
