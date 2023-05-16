@@ -214,12 +214,12 @@ void Init(App* app)
         texturedMeshProgram.vertexInputLayout.attributes.push_back({ (u8)attributeLocation, (u8)attribSize });
     }
 
-    app->diceTexIdx =     LoadTexture2D(app, "dice.png");
-    app->whiteTexIdx =    LoadTexture2D(app, "color_white.png");
-    app->blackTexIdx =    LoadTexture2D(app, "color_black.png");
-    app->normalTexIdx =   LoadTexture2D(app, "color_normal.png");
-    app->magentaTexIdx =  LoadTexture2D(app, "color_magenta.png");
-    app->patrickMeshIdx = LoadModel(app, "Patrick/Patrick.obj");
+    app->diceTexIdx = LoadTexture2D(app, "dice.png");
+    LoadTexture2D(app, "color_white.png");
+    LoadTexture2D(app, "color_black.png");
+    LoadTexture2D(app, "color_normal.png");
+    LoadTexture2D(app, "color_magenta.png");
+    LoadModel(app, "Patrick/Patrick.obj");
 }
 
 void Gui(App* app)
@@ -320,30 +320,31 @@ void Render(App* app)
             Program& texturedMeshProgram = app->programs[app->texturedMeshProgramIdx];
             glUseProgram(texturedMeshProgram.handle);
 
-            GameObject& go = app->gameObject[app->patrickMeshIdx];
-            Mesh& mesh = app->meshes[go.MeshID()];
-            u32 blockOffset = 0;
-            u32 blockSize = sizeof(mat4) * 2;
-            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->bufferHandle, blockOffset, blockSize);
-
-
-            for (u32 i = 0; i < mesh.submeshes.size(); ++i)
+            for (GameObject& go : app->gameObject)
             {
-                GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                glBindVertexArray(vao);
+                Mesh& mesh = app->meshes[go.MeshID()];
+                u32 blockOffset = 0;
+                u32 blockSize = sizeof(mat4) * 2;
+                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->bufferHandle, blockOffset, blockSize);
 
-                u32 submeshMaterialIdx = go.MaterialID(i);
-                Material& submeshMaterial = app->materials[submeshMaterialIdx];
+                for (u32 i = 0; i < mesh.submeshes.size(); ++i)
+                {
+                    GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
+                    glBindVertexArray(vao);
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.albedoTextureIdx].handle);
-                glUniform1i(app->texturedMeshProgram_uTexture, 0);
-                
-                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldMatrix"), 1, GL_FALSE,value_ptr(app->camera.view));
-                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldViewProjectionMatrix"), 1, GL_FALSE, value_ptr(app->camera.projection));
+                    u32 submeshMaterialIdx = go.MaterialID(i);
+                    Material& submeshMaterial = app->materials[submeshMaterialIdx];
 
-                Submesh& submesh = mesh.submeshes[i];
-                glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.albedoTextureIdx].handle);
+                    glUniform1i(app->texturedMeshProgram_uTexture, 0);
+
+                    glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldMatrix"), 1, GL_FALSE, value_ptr(go.GetView()));
+                    glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldViewProjectionMatrix"), 1, GL_FALSE, value_ptr(go.GetProjection()));
+
+                    Submesh& submesh = mesh.submeshes[i];
+                    glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
+                }
             }
         }
         default:;

@@ -57,11 +57,6 @@ struct App
     
     // texture indices
     u32 diceTexIdx;
-    u32 whiteTexIdx;
-    u32 blackTexIdx;
-    u32 normalTexIdx;
-    u32 magentaTexIdx;
-    u32 patrickMeshIdx;
 
     // Mode
     Mode mode;

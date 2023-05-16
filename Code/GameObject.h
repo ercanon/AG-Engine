@@ -13,9 +13,14 @@ public:
 	mat4 TransformPositionScale(const vec3& pos, const vec3& scaleFactors);
 	mat4 TransformPositionRotationScale(const vec3& pos, const vec3& rotation, const vec3& scaleFactors);
 
-	virtual u32 MeshID(u32 meshID = -1) { return meshID != -1 ? meshIdx = meshID : meshIdx; };
-	virtual u32 MaterialID(u32 index, u32 materialID = -1) { return materialID != -1 ? materialIdx[index] = materialID : materialIdx[index]; };
-	virtual vector<u32>& GetMaterialID() { return materialIdx; };
+	// Get/Set Function
+	virtual u32 MeshID(u32 meshID = -1) { return meshID != -1 ? meshIdx = meshID : meshIdx; }
+	virtual u32 MaterialID(u32 index, u32 materialID = -1) { return materialID != -1 ? materialIdx[index] = materialID : materialIdx[index]; }
+
+	// Get Funcion
+	virtual vector<u32>& GetMaterialID() { return materialIdx; }
+	virtual mat4 GetView() { return worldMatrix; }
+	virtual mat4 GetProjection() { return worldViewProjection; }
 
 private:
 	u32			meshIdx;
@@ -24,7 +29,6 @@ private:
 	vec3 pos;
 	mat4 worldMatrix;
 	mat4 worldViewProjection;
-	u32 modelIndex;
 	u32 localParamsOffset;
 	u32 localParamSize;
 };
