@@ -1,9 +1,47 @@
 ﻿  Camera.cpp
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(29,48): error C2061: error de sintaxis: identificador 'Buffer'
   Engine.cpp
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(29,48): error C2061: error de sintaxis: identificador 'Buffer'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.cpp(144,5): error C2084: la función 'u32 Align(u32,u32)' ya tiene un cuerpo
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\BufferManager.h(18): message : vea la definición anterior de 'Align'
 C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.cpp(209,23): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Engine.cpp(279,64): error C2660: 'GameObject::HandleBuffer': la función no acepta 2 argumentos
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(29,7): message : vea la declaración de 'GameObject::HandleBuffer'
   GameObject.cpp
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(29,48): error C2061: error de sintaxis: identificador 'Buffer'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(16,1): error C2511: 'void GameObject::HandleBuffer(GLint,Buffer)': la función miembro sobrecargada no se ha encontrado en 'GameObject'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(23): message : vea la declaración de 'GameObject'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(17,13): error C2597: referencia no válida a miembro no static 'GameObject::type'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(53): message : vea la declaración de 'GameObject::type'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(18,5): error C2450: una expresión switch de tipo "unknown" no es válida
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(17,13): message : Se requiere una expresión de integral
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(22,9): error C2597: referencia no válida a miembro no static 'GameObject::localParamsOffset'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(57): message : vea la declaración de 'GameObject::localParamsOffset'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(24,9): error C2597: referencia no válida a miembro no static 'GameObject::worldMatrix'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(55): message : vea la declaración de 'GameObject::worldMatrix'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(24,9): error C2660: 'PushAlignedData': la función no acepta 3 argumentos
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\BufferManager.h(65,6): message : vea la declaración de 'PushAlignedData'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(25,9): error C2597: referencia no válida a miembro no static 'GameObject::worldViewProjection'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(56): message : vea la declaración de 'GameObject::worldViewProjection'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(25,9): error C2660: 'PushAlignedData': la función no acepta 3 argumentos
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\BufferManager.h(65,6): message : vea la declaración de 'PushAlignedData'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(26,57): error C2597: referencia no válida a miembro no static 'GameObject::localParamsOffset'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(26,57): error C3867: 'GameObject::localParamsOffset': sintaxis no estándar; utilice '&' para crear un puntero al miembro
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(26,57): error C2568: '-': no se puede resolver la sobrecarga de funciones
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(32,9): error C2672: 'glm::value_ptr': no se encontró una función sobrecargada que coincida
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(32,9): error C2660: 'PushAlignedData': la función no acepta 3 argumentos
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\BufferManager.h(65,6): message : vea la declaración de 'PushAlignedData'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(33,9): error C2672: 'glm::value_ptr': no se encontró una función sobrecargada que coincida
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(33,9): error C2660: 'PushAlignedData': la función no acepta 3 argumentos
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\BufferManager.h(65,6): message : vea la declaración de 'PushAlignedData'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(34,9): error C2597: referencia no válida a miembro no static 'GameObject::pos'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(54): message : vea la declaración de 'GameObject::pos'
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.cpp(34,9): error C2660: 'PushAlignedData': la función no acepta 3 argumentos
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\BufferManager.h(65,6): message : vea la declaración de 'PushAlignedData'
   Importer.cpp
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(29,48): error C2061: error de sintaxis: identificador 'Buffer'
   Platform.cpp
+C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\GameObject.h(29,48): error C2061: error de sintaxis: identificador 'Buffer'
 C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(42,36): warning C4244: '=': conversión de 'double' a 'T'; posible pérdida de datos
           with
           [
@@ -25,6 +63,3 @@ C:\Users\raulc\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(45,29): war
               T=float
           ]
   Generando código...
-  LINK : no se encontró C:\Users\raulc\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe o no lo generó el último vínculo incremental; ejecutando vínculo completo
-LINK : warning LNK4098: la biblioteca predeterminada'MSVCRT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
-  Engine.vcxproj -> C:\Users\raulc\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe

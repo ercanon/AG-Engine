@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "BufferManager.h"
 
 GameObject::GameObject()
 {
@@ -25,7 +26,12 @@ void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer buffer)
         localParamSize = buffer.head - localParamsOffset;
         break;
     case Lightning:
+        AlignHead(buffer, sizeof(vec4));
 
+        PushUInt(buffer, light.type);
+        PushVec3(buffer, light.color);
+        PushVec3(buffer, light.direction);
+        PushVec3(buffer, pos);
         break;
     default:;
     }

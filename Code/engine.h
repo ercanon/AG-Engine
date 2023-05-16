@@ -8,6 +8,7 @@
 #include "Importer.h"
 #include "Camera.h"
 #include "GameObject.h"
+#include "BufferManager.h"
 #include <glad/glad.h>
 
 
@@ -46,9 +47,8 @@ struct App
     vector<Texture>  textures;
     vector<Material> materials;
     vector<Mesh>     meshes;
-    vector<Program>  programs;
-
     vector<GameObject> gameObject;
+    vector<Program>  programs;
 
     // program indices
     u32 texturedGeometryProgramIdx;
@@ -62,8 +62,9 @@ struct App
     Mode mode;
 
     // Buffer
-    GLuint bufferHandle;
+    Buffer cBuffer;
     GLint uniformBlockAligment;
+    u32 globalParamsOffset;
 
     // Embedded geometry (in-editor simple meshes such as
     // a screen filling quad, a cube, a sphere...)
@@ -91,4 +92,5 @@ void Gui(App* app);
 void Update(App* app);
 
 void Render(App* app);
+
 

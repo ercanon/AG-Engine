@@ -35,6 +35,7 @@
     <ClCompile Include="ThirdParty\stb\stb.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\BufferManager.h" />
     <ClInclude Include="Code\Camera.h" />
     <ClInclude Include="Code\Engine.h" />
     <ClInclude Include="Code\GameObject.h" />

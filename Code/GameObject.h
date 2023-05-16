@@ -7,6 +7,19 @@ enum ObjectType
 	Lightning
 };
 
+enum LightType
+{
+	Directional,
+	Point
+};
+
+struct Light
+{
+	LightType type;
+	vec3	  color;
+	vec3	  direction;
+};
+
 class GameObject
 {
 public:
@@ -43,17 +56,4 @@ private:
 	mat4 worldViewProjection;
 	u32 localParamsOffset;
 	u32 localParamSize;
-};
-
-enum LightType
-{
-	Directional,
-	Point
-};
-
-struct Light
-{
-	LightType type;
-	vec3 color;
-	vec3 direction;
 };

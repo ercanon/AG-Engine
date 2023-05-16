@@ -167,8 +167,8 @@ void Init(App* app)
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &app->uniformBlockAligment);
 
-    glGenBuffers(1, &app->bufferHandle);
-    glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
+    glGenBuffers(1, &app->cBuffer.head);
+    glBindBuffer(GL_UNIFORM_BUFFER, app->cBuffer.head);
     glBufferData(GL_UNIFORM_BUFFER, maxUniformBufferSize, NULL, GL_STREAM_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
@@ -267,15 +267,19 @@ void Update(App* app)
     app->camera.Update(app);
 
 
-    glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
-    u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-    u32 bufferHead = 0;
+    //Buffer Lights
+    app->globalParamsOffset = app->cBuffer.head;
+
+    PushVec3(app->cBuffer, app->camera.pos);
+    PushUInt(app->cBuffer, app->gameObject.size());
 
     for (GameObject& go : app->gameObject)
     {
         go.Update(app);
-        go.HandleBuffer(app->uniformBlockAligment, bufferHead, bufferData);
+        go.HandleBuffer(app->uniformBlockAligment, app->cBuffer);
     }
+
+    app->globalParamsOffset = app->cBuffer.head - app->globalParamsOffset;
 
     glUnmapBuffer(GL_UNIFORM_BUFFER);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -325,7 +329,7 @@ void Render(App* app)
                 Mesh& mesh = app->meshes[go.MeshID()];
                 u32 blockOffset = 0;
                 u32 blockSize = sizeof(mat4) * 2;
-                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->bufferHandle, blockOffset, blockSize);
+                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->cBuffer.head, blockOffset, blockSize);
 
                 for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                 {

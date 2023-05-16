@@ -51,13 +51,13 @@
     <ClCompile Include="ThirdParty\stb\stb.cpp">
       <Filter>Stb</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Importer.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Camera.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Code\GameObject.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Importer.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,13 +101,16 @@
     <ClInclude Include="ThirdParty\stb\stb_image.h">
       <Filter>Stb</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Importer.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Camera.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Code\GameObject.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Importer.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\BufferManager.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
