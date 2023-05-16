@@ -24,7 +24,8 @@ Camera::~Camera()
 
 void Camera::Update(App* app)
 {
-	aspectRatio = (float)app->displaySize.x / (float)app->displaySize.y;
+	ivec2 displaySize = app->dispSize();
+	aspectRatio = (float)displaySize.x / (float)displaySize.y;
 
 	projection = perspective(radians(60.0f), aspectRatio, zNear, zFar);
 

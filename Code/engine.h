@@ -28,27 +28,39 @@ enum Mode
     Mode_Count
 };
 
-struct App
+class App
 {
+public:
+    App(f32 dt, ivec2 dispSize, bool running);
+    virtual ~App() {};
+    void Init();
+    void Gui();
+    void Update();
+    void Render();
+
+    virtual bool IsRunning(bool run = -1) { return run != -1 ? isRunning = run : isRunning; }
+    virtual ivec2 dispSize(vec2 size = vec2(-1)) { return size != vec2(-1) ? displaySize = size : displaySize; }
+    virtual f32 dt(f32 set = -1) { return set != -1 ? deltaTime = set : deltaTime; }
+
+    vector<Texture>     textures;
+    vector<Material>    materials;
+    vector<Mesh>        meshes;
+    vector<GameObject>  gameObject;
+    vector<Program>     programs;
+    Camera              camera;
+    Input               input;
+
+
+private:
     // Loop
     f32  deltaTime;
     bool isRunning;
-
-    // Input
-    Input input;
+    OpenGLInfo glInfo;
 
     // Graphics
     char gpuName[64];
     char openGlVersion[64];
-
-    Camera camera;
     ivec2 displaySize;
-
-    vector<Texture>  textures;
-    vector<Material> materials;
-    vector<Mesh>     meshes;
-    vector<GameObject> gameObject;
-    vector<Program>  programs;
 
     // program indices
     u32 texturedGeometryProgramIdx;
@@ -76,19 +88,9 @@ struct App
 
     // VAO object to link our screen filling quad with our textured quad shader
     GLuint vao;
-
-    OpenGLInfo glInfo;
 };
 
 
 GLuint CreateProgramFromSource(String programSource, const char* shaderName);
-
-void Init(App* app);
-
-void Gui(App* app);
-
-void Update(App* app);
-
-void Render(App* app);
 
 

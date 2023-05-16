@@ -105,23 +105,20 @@ void OnGlfwCharEvent(GLFWwindow* window, unsigned int character)
 void OnGlfwResizeFramebuffer(GLFWwindow* window, int width, int height)
 {
     App* app = (App*)glfwGetWindowUserPointer(window);
-    app->displaySize = vec2(width, height);
+    app->dispSize(vec2(width, height));
 }
 
 void OnGlfwCloseWindow(GLFWwindow* window)
 {
     App* app = (App*)glfwGetWindowUserPointer(window);
-    app->isRunning = false;
+    app->IsRunning(false);
 }
 
 int main()
 {
-    App app         = {};
-    app.deltaTime   = 1.0f/60.0f;
-    app.displaySize = ivec2(WINDOW_WIDTH, WINDOW_HEIGHT);
-    app.isRunning   = true;
+    App app = { (1.0f / 60.0f), ivec2(WINDOW_WIDTH, WINDOW_HEIGHT), true };
 
-		glfwSetErrorCallback(OnGlfwError);
+    glfwSetErrorCallback(OnGlfwError);
 
     if (!glfwInit())
     {
@@ -199,9 +196,9 @@ int main()
 
     GlobalFrameArenaMemory = (u8*)malloc(GLOBAL_FRAME_ARENA_SIZE);
 
-    Init(&app);
+    app.Init();
 
-    while (app.isRunning)
+    while (app.IsRunning())
     {
         // Tell GLFW to call platform callbacks
         glfwPollEvents();
@@ -210,7 +207,7 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        Gui(&app);
+        app.Gui();
         ImGui::Render();
 
         // Clear input state if required by ImGui
@@ -223,7 +220,7 @@ int main()
                 app.input.mouseButtons[i] = BUTTON_IDLE;
 
         // Update
-        Update(&app);
+        app.Update();
 
         // Transition input key/button states
         if (!ImGui::GetIO().WantCaptureKeyboard)
@@ -239,7 +236,7 @@ int main()
         app.input.mouseDelta = vec2(0.0f, 0.0f);
 
         // Render
-        Render(&app);
+        app.Render();
 
         // ImGui Render
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -255,7 +252,7 @@ int main()
 
         // Frame time
         f64 currentFrameTime = glfwGetTime();
-        app.deltaTime = (f32)(currentFrameTime - lastFrameTime);
+        app.dt((f32)(currentFrameTime - lastFrameTime));
         lastFrameTime = currentFrameTime;
 
         // Reset frame allocator
