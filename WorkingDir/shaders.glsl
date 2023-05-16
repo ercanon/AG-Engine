@@ -3,14 +3,6 @@
 // The third parameter of the LoadProgram function in engine.cpp allows
 // chosing the shader you want to load by name.
 
-//struct Light
-//{
-//	unsigned int type;
-//	vec3		 color;
-//	vec3		 direction;
-//	vec3		 position;
-//};
-
 //#ifdef TEXTURED_GEOMETRY
 //	#if defined(VERTEX) ///////////////////////////////////////////////////
 //	
@@ -44,13 +36,22 @@
 
 
 #ifdef TEXTURED_MESH
+
+	struct Light
+	{
+		unsigned int type;
+		vec3		 color;
+		vec3		 direction;
+		vec3		 position;
+	};
+
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
 	layout(location = 0) in vec3 aPosition;
 	layout(location = 1) in vec3 aNormal;
 	layout(location = 2) in vec2 aTexCoord;
-	//layout(location=3) in vec3 aTangent;
-	//layout(location=4) in vec3 aBitangent;
+	layout(location = 3) in vec3 aTangent;
+	layout(location = 4) in vec3 aBitangent;
 	
 	layout (binding = 0, std140) uniform GlobalParams
 	{
@@ -89,8 +90,15 @@
 	in vec3 vViewDir;
 	
 	uniform sampler2D uTexture;
+
+	layout (binding = 0, std140) uniform GlobalParams
+	{
+		vec3		 uCameraPosition;
+		unsigned int uLightCount;
+		Light		 uLight[16];
+	}
 	
-	layout(location=0) out vec4 oColor;
+	layout(location = 0) out vec4 oColor;
 	
 	void main()
 	{
