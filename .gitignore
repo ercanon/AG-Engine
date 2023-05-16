@@ -24,6 +24,7 @@ x64/
 *.lai
 *.la
 *.a
+*.VC.db
 
 # Executables
 *.exe
