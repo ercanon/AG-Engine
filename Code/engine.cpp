@@ -278,10 +278,9 @@ void App::Update()
         go.HandleBuffer(uniformBlockAligment, cBuffer);
     }
 
-    globalParamsOffset = cBuffer.head - globalParamsOffset;
+    globalParamsSize = cBuffer.head - globalParamsOffset;
 
-    glUnmapBuffer(GL_UNIFORM_BUFFER);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    UnmapBuffer(cBuffer);
 }
 
 void App::Render()
@@ -323,12 +322,13 @@ void App::Render()
             Program& texturedMeshProgram = programs[texturedMeshProgramIdx];
             glUseProgram(texturedMeshProgram.handle);
 
+            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(0), cBuffer.head, globalParamsOffset, globalParamsSize);
+
             for (GameObject& go : gameObject)
             {
+                u32* localParams = go.GetLocalParams();
+                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, localParams[0], localParams[1]);
                 Mesh& mesh = meshes[go.MeshID()];
-                u32 blockOffset = 0;
-                u32 blockSize = sizeof(mat4) * 2;
-                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, blockOffset, blockSize);
 
                 for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                 {
@@ -347,8 +347,11 @@ void App::Render()
 
                     Submesh& submesh = mesh.submeshes[i];
                     glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
+                    glBindVertexArray(0);
                 }
             }
+
+            glUseProgram(0);
         }
         default:;
     }

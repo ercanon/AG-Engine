@@ -77,6 +77,7 @@ private:
     Buffer cBuffer;
     GLint uniformBlockAligment;
     u32 globalParamsOffset;
+    u32 globalParamsSize;
 
     // Embedded geometry (in-editor simple meshes such as
     // a screen filling quad, a cube, a sphere...)

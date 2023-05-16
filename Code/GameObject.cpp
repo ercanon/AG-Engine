@@ -1,8 +1,8 @@
 #include "Engine.h"
 
-GameObject::GameObject()
+GameObject::GameObject(int type)
 {
-
+    oType = (ObjectType)type;
 }
 
 void GameObject::Update(App* app)

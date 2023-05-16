@@ -1,7 +1,6 @@
 
 #pragma once
 
-
 struct Buffer;
 
 enum ObjectType
@@ -26,7 +25,7 @@ struct Light
 class GameObject
 {
 public:
-	GameObject();
+	GameObject(int type);
 	virtual ~GameObject() {};
 	void Update(App* app);
 	void HandleBuffer(GLint uniformBlockAligment, Buffer buffer);
@@ -43,6 +42,7 @@ public:
 	virtual vector<u32>& GetMaterialID() { return materialIdx; }
 	virtual mat4 GetView() { return worldMatrix; }
 	virtual mat4 GetProjection() { return worldViewProjection; }
+	virtual u32* GetLocalParams() { u32 locParams[] = { localParamsOffset, localParamSize }; return locParams; }
 
 private:
 	//Model

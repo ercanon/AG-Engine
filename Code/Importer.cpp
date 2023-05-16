@@ -281,7 +281,7 @@ u32 LoadModel(App* app, const char* filename)
     Mesh& mesh = app->meshes.back();
     u32 meshIdx = (u32)app->meshes.size() - 1u;
 
-    app->gameObject.push_back(GameObject{});
+    app->gameObject.push_back(GameObject{ 0 });
     GameObject& go = app->gameObject.back();
     go.MeshID(meshIdx);
     u32 modelIdx = (u32)app->gameObject.size() - 1u;
