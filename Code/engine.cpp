@@ -295,15 +295,15 @@ void Render(App* app)
             Program& texturedMeshProgram = app->programs[app->texturedMeshProgramIdx];
             glUseProgram(texturedMeshProgram.handle);
 
-            Model& model = app->models[app->patrickMeshIdx];
-            Mesh& mesh = app->meshes[model.meshIdx];
+            GameObject& go = app->gameObject[app->patrickMeshIdx];
+            Mesh& mesh = app->meshes[go.MeshID()];
 
             for (u32 i = 0; i < mesh.submeshes.size(); ++i)
             {
                 GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
                 glBindVertexArray(vao);
 
-                u32 submeshMaterialIdx = model.materialIdx[i];
+                u32 submeshMaterialIdx = go.MaterialID(i);
                 Material& submeshMaterial = app->materials[submeshMaterialIdx];
 
                 glActiveTexture(GL_TEXTURE0);

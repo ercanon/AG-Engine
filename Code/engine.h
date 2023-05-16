@@ -46,10 +46,8 @@ struct App
     vector<Texture>  textures;
     vector<Material> materials;
     vector<Mesh>     meshes;
-    vector<Model>    models;
-    vector<Program>  programs;
-
     vector<GameObject> gameObject;
+    vector<Program>  programs;
 
     // program indices
     u32 texturedGeometryProgramIdx;
