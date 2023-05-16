@@ -62,7 +62,6 @@
 		vNormal   = vec3( uWorldMatrix * vec4(aNormal, 0.0) );
 		
 		gl_Position = uWorldViewProjectionMatrix * vec4(aPosition, 1.0);
-		gl_Position.z = -gl_Position.z;
 	}
 	
 	
@@ -72,7 +71,6 @@
 	in vec3 vPosition;
 	in vec3 vNormal;
 	in vec3 vViewDir;
-
 	
 	uniform sampler2D uTexture;
 	

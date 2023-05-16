@@ -35,6 +35,7 @@ void Camera::Update(App* app)
 
 void Camera::ControlCamera(App* app)
 {
+	/*
 	float speed = 15.0f * app->deltaTime;
 	if (app->input.keys[K_SPACE] == BUTTON_PRESSED) speed *= 2;
 
@@ -48,7 +49,6 @@ void Camera::ControlCamera(App* app)
 		pos += rightAxis * speed;
 
 
-	/*
 	// Auxiliar variables
 	vec3 newPos = pos;
 	vec3 newFront = rightAxis;

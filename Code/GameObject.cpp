@@ -11,9 +11,12 @@ GameObject::~GameObject()
 
 void GameObject::Update(App* app)
 {
-    mat4 world = TransformPositionScale(vec3(2.5f, 1.5f, -2.0f), vec3(0.45f));
-    mat4 worldViewProjection = app->camera.projection * app->camera.view * world;
+    worldMatrix = TransformPositionScale(vec3(2.5f, 1.5f, -2.0f), vec3(0.45f));
+    worldViewProjection = app->camera.projection * app->camera.view * worldMatrix;
+}
 
+void GameObject::HandleBuffer(GLint uniformBlockAligment, u32 bufferHead, u8* bufferData)
+{
     bufferHead = Align(bufferHead, uniformBlockAligment);
 
     localParamsOffset = bufferHead;

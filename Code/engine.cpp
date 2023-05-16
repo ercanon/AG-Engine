@@ -162,10 +162,10 @@ void Init(App* app)
 
     app->mode = Mode_TexturedMesh;
 
+    // Uniform Buffer
     GLint maxUniformBufferSize;
-    GLint uniformBlockAligment;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
-    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &app->uniformBlockAligment);
 
     glGenBuffers(1, &app->bufferHandle);
     glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
@@ -251,9 +251,8 @@ void Update(App* app)
 {
     //HandleInput(app);
 
-    for (u64 i = 0; i < app->programs.size(); i++)
+    for (Program& program : app->programs)
     {
-        Program& program = app->programs[i];
         u64 currentTimestamp = GetFileLastWriteTimestamp(program.filepath.c_str());
         if (currentTimestamp > program.lastWriteTimestamp)
         {
@@ -263,26 +262,23 @@ void Update(App* app)
             program.handle = CreateProgramFromSource(programSource, programName);
             program.lastWriteTimestamp = currentTimestamp;
         }
-
-        glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
-
-        u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-        u32 bufferHead = 0;
-
-        memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldMatrix")), sizeof(mat4));
-        bufferHead += sizeof(mat4);
-
-        memcpy(bufferData + bufferHead, value_ptr(glGetUniformLocation(program.handle, "worldViewProjectionMatrix")), sizeof(mat4));
-        bufferHead += sizeof(mat4);
-
-        glUnmapBuffer(GL_UNIFORM_BUFFER);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
     app->camera.Update(app);
 
-    for (u64 i = 0; i < app->gameObject.size(); i++)
-        app->gameObject[i].Update(app);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, app->bufferHandle);
+    u8* bufferData = (u8*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    u32 bufferHead = 0;
+
+    for (GameObject& go : app->gameObject)
+    {
+        go.Update(app);
+        go.HandleBuffer(app->uniformBlockAligment, bufferHead, bufferData);
+    }
+
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Render(App* app)
@@ -326,6 +322,10 @@ void Render(App* app)
 
             Model& model = app->models[app->patrickMeshIdx];
             Mesh& mesh = app->meshes[model.meshIdx];
+            u32 blockOffset = 0;
+            u32 blockSize = sizeof(mat4) * 2;
+            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), app->bufferHandle, blockOffset, blockSize);
+
 
             for (u32 i = 0; i < mesh.submeshes.size(); ++i)
             {
@@ -339,8 +339,8 @@ void Render(App* app)
                 glBindTexture(GL_TEXTURE_2D, app->textures[submeshMaterial.albedoTextureIdx].handle);
                 glUniform1i(app->texturedMeshProgram_uTexture, 0);
                 
-                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(app->camera.view));
-                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "projection"), 1, GL_FALSE, glm::value_ptr(app->camera.projection));
+                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldMatrix"), 1, GL_FALSE,value_ptr(app->camera.view));
+                glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldViewProjectionMatrix"), 1, GL_FALSE, value_ptr(app->camera.projection));
 
                 Submesh& submesh = mesh.submeshes[i];
                 glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);

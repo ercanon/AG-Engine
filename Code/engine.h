@@ -67,6 +67,10 @@ struct App
     // Mode
     Mode mode;
 
+    // Buffer
+    GLuint bufferHandle;
+    GLint uniformBlockAligment;
+
     // Embedded geometry (in-editor simple meshes such as
     // a screen filling quad, a cube, a sphere...)
     GLuint embeddedVertices;
@@ -77,13 +81,14 @@ struct App
 
     // VAO object to link our screen filling quad with our textured quad shader
     GLuint vao;
-    GLuint bufferHandle;
 
     OpenGLInfo glInfo;
 };
 
 
 GLuint CreateProgramFromSource(String programSource, const char* shaderName);
+
+u32 Align(u32 value, u32 aligment);
 
 void Init(App* app);
 
