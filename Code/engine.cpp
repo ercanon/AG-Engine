@@ -9,84 +9,6 @@
 #include <imgui.h>
 #include <glm/gtc/type_ptr.hpp>
 
-GLuint CreateProgramFromSource(String programSource, const char* shaderName)
-{
-    GLchar  infoLogBuffer[1024] = {};
-    GLsizei infoLogBufferSize = sizeof(infoLogBuffer);
-    GLsizei infoLogSize;
-    GLint   success;
-
-    char versionString[] = "#version 430\n";
-    char shaderNameDefine[128];
-    sprintf(shaderNameDefine, "#define %s\n", shaderName);
-    char vertexShaderDefine[] = "#define VERTEX\n";
-    char fragmentShaderDefine[] = "#define FRAGMENT\n";
-
-    const GLchar* vertexShaderSource[] = {
-        versionString,
-        shaderNameDefine,
-        vertexShaderDefine,
-        programSource.str
-    };
-    const GLint vertexShaderLengths[] = {
-        (GLint)strlen(versionString),
-        (GLint)strlen(shaderNameDefine),
-        (GLint)strlen(vertexShaderDefine),
-        (GLint)programSource.len
-    };
-    const GLchar* fragmentShaderSource[] = {
-        versionString,
-        shaderNameDefine,
-        fragmentShaderDefine,
-        programSource.str
-    };
-    const GLint fragmentShaderLengths[] = {
-        (GLint)strlen(versionString),
-        (GLint)strlen(shaderNameDefine),
-        (GLint)strlen(fragmentShaderDefine),
-        (GLint)programSource.len
-    };
-
-    GLuint vshader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vshader, ARRAY_COUNT(vertexShaderSource), vertexShaderSource, vertexShaderLengths);
-    glCompileShader(vshader);
-    glGetShaderiv(vshader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vshader, infoLogBufferSize, &infoLogSize, infoLogBuffer);
-        ELOG("glCompileShader() failed with vertex shader %s\nReported message:\n%s\n", shaderName, infoLogBuffer);
-    }
-
-    GLuint fshader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fshader, ARRAY_COUNT(fragmentShaderSource), fragmentShaderSource, fragmentShaderLengths);
-    glCompileShader(fshader);
-    glGetShaderiv(fshader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fshader, infoLogBufferSize, &infoLogSize, infoLogBuffer);
-        ELOG("glCompileShader() failed with fragment shader %s\nReported message:\n%s\n", shaderName, infoLogBuffer);
-    }
-
-    GLuint programHandle = glCreateProgram();
-    glAttachShader(programHandle, vshader);
-    glAttachShader(programHandle, fshader);
-    glLinkProgram(programHandle);
-    glGetProgramiv(programHandle, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(programHandle, infoLogBufferSize, &infoLogSize, infoLogBuffer);
-        ELOG("glLinkProgram() failed with program %s\nReported message:\n%s\n", shaderName, infoLogBuffer);
-    }
-
-    glUseProgram(0);
-
-    glDetachShader(programHandle, vshader);
-    glDetachShader(programHandle, fshader);
-    glDeleteShader(vshader);
-    glDeleteShader(fshader);
-
-    return programHandle;
-}
 
 GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
 {
@@ -169,7 +91,53 @@ void App::Init()
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
 
     cBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
-    globalParamsOffset = cBuffer.head;
+
+    // FrameBuffer
+    glGenTextures(1, &colorAttachmentHandle);
+    glBindTexture(  GL_TEXTURE_2D, colorAttachmentHandle);
+    glTexImage2D(   GL_TEXTURE_2D, 0, GL_RGBA8, displaySize.x, displaySize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(  GL_TEXTURE_2D, 6);
+    
+    GLuint depthAttachmentHandle;
+    glGenTextures(1, &depthAttachmentHandle);
+    glBindTexture(  GL_TEXTURE_2D, depthAttachmentHandle);
+    glTexImage2D(   GL_TEXTURE_2D, 8, GL_DEPTH_COMPONENT24, displaySize.x, displaySize.y, 8, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(  GL_TEXTURE_2D, 6);
+    
+    glGenFramebuffers(1, &framebufferHandle);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorAttachmentHandle, 6); 
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAttachmentHandle, 6);
+    
+    GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+    {
+        switch (framebufferStatus)
+        {
+        case GL_FRAMEBUFFER_UNDEFINED:                      ELOG("GL_FRAMEBUFFER_UNDEFINED"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:          ELOG("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:  ELOG("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:         ELOG("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:         ELOG("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
+        case GL_FRAMEBUFFER_UNSUPPORTED:                    ELOG("GL_FRAMEBUFFER_UNSUPPORTED"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:         ELOG("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:       ELOG("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
+        default: ELOG("Unknown framebuffer status error");
+        }
+    }
+
+    glDrawBuffers(1, &colorAttachmentHandle);
+    glBindFramebuffer(GL_FRAMEBUFFER, 6);
 
     // Geometry
     glGenBuffers(1, &embeddedVertices);
@@ -220,6 +188,12 @@ void App::Init()
     LoadTexture2D(this, "color_magenta.png");
     LoadModel(this, "Patrick/Patrick.obj");
     LoadModel(this, "Patrick/Patrick.obj");
+
+    Light newLight = { 
+    LightType::Point,
+    vec3 ( 255, 0, 0 ),
+    vec3 ( 0.0, 0.0, 0.0 ) };
+    gameObject.push_back(GameObject{ vec3(0.0), vec3(1.0), vec3(0.0), newLight });
 }
 
 void App::Gui()
@@ -268,17 +242,22 @@ void App::Update()
 
 
     MapBuffer(cBuffer, GL_WRITE_ONLY);
-    globalParamsOffset = cBuffer.head;
-
-    PushVec3(cBuffer, camera.pos);
-    PushUInt(cBuffer, gameObject.size());
-
+    uint lightSize = 0;
+    u32 lightParamsOffset = cBuffer.head;
+    Buffer helper = cBuffer;
     for (GameObject& go : gameObject)
     {
         go.Update(this);
-        go.HandleBuffer(uniformBlockAligment, &cBuffer);
+        go.HandleBuffer(uniformBlockAligment, &cBuffer, &helper);
+        if (go.IsType(ObjectType::Lightning)) lightSize++;
     }
 
+    globalParamsOffset = cBuffer.head;
+
+    PushVec3(cBuffer, camera.pos);
+    PushUInt(cBuffer, lightSize);
+    PushData(cBuffer, helper.data, helper.head);
+    
     globalParamsSize = cBuffer.head - globalParamsOffset;
 
     UnmapBuffer(cBuffer);
@@ -315,8 +294,12 @@ void App::Render()
         break;
         case Mode::Mode_TexturedMesh:
         {
+            glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
+
+            GLuint drawBuffers[] = { colorAttachmentHandle };
+            glDrawBuffers(ARRAY_COUNT(drawBuffers), drawBuffers);
+
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glViewport(0, 0, displaySize.x, displaySize.y);
@@ -328,28 +311,32 @@ void App::Render()
 
             for (GameObject& go : gameObject)
             {
-                Mesh& mesh = meshes[go.MeshID()];
-
-                //glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, go.GetLocalOffset(), go.GetLocalSize());
-
-                for (u32 i = 0; i < mesh.submeshes.size(); ++i)
+                if (go.IsType(ObjectType::Model))
                 {
-                    GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                    glBindVertexArray(vao);
+                    Mesh& mesh = meshes[go.MeshID()];
 
-                    Material& submeshMaterial = materials[go.MaterialID(i)];
+                    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, go.GetLocalOffset(), go.GetLocalSize());
 
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
-                    glUniform1i(texturedMeshProgram_uTexture, 0);
+                    for (u32 i = 0; i < mesh.submeshes.size(); ++i)
+                    {
+                        GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
+                            glBindVertexArray(vao);
 
-                    Submesh& submesh = mesh.submeshes[i];
-                    glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                    glBindVertexArray(0);
+                            Material& submeshMaterial = materials[go.MaterialID(i)];
+
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
+                        glUniform1i(texturedMeshProgram_uTexture, 0);
+
+                        Submesh& submesh = mesh.submeshes[i];
+                        glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
+                        glBindVertexArray(0);
+                    }
                 }
             }
 
             glUseProgram(0);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
         }
         default:;
     }

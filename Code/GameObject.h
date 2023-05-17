@@ -25,10 +25,12 @@ struct Light
 class GameObject
 {
 public:
-	GameObject(int type, u32 meshID);
+	GameObject(int type);
+	GameObject(vec3 position, vec3 scale, vec3 rotation, Light newLight);
+	GameObject(vec3 position, vec3 scale, vec3 rotation, u32 meshID);
 	virtual ~GameObject() {};
 	void Update(App* app);
-	void HandleBuffer(GLint uniformBlockAligment, Buffer* buffer);
+	void HandleBuffer(GLint uniformBlockAligment, Buffer* bufferModel, Buffer* bufferLigh);
 
 	mat4 TransformScale(const vec3& scaleFactors);
 	mat4 TransformPositionScale(const vec3& pos, const vec3& scaleFactors);
@@ -44,20 +46,21 @@ public:
 	virtual mat4 GetProjection() { return worldViewProjection; }
 	virtual u32 GetLocalOffset() { return localParamsOffset; }
 	virtual u32 GetLocalSize() { return localParamSize; }
+	virtual bool IsType(ObjectType type) { return type == oType; }
 
 private:
+	//General
+	ObjectType oType;
+	vec3 pos;
+	vec3 scl;
+	vec3 rot;
+
 	//Model
 	u32			meshIdx;
 	vector<u32>	materialIdx;
 
 	//Light
 	Light light;
-
-	//General
-	ObjectType oType;
-	vec3 pos;
-	vec3 scl;
-	vec3 rot;
 
 	mat4 worldMatrix;
 	mat4 worldViewProjection;

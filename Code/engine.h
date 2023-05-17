@@ -9,7 +9,6 @@
 #include "Camera.h"
 #include "GameObject.h"
 #include "BufferManager.h"
-#include <glad/glad.h>
 
 
 struct OpenGLInfo
@@ -78,6 +77,9 @@ private:
     GLint uniformBlockAligment;
     u32 globalParamsOffset;
     u32 globalParamsSize;
+
+    GLuint framebufferHandle;
+    GLuint colorAttachmentHandle;
 
     // Embedded geometry (in-editor simple meshes such as
     // a screen filling quad, a cube, a sphere...)

@@ -1,11 +1,8 @@
 #include "Engine.h"
 
-GameObject::GameObject(int type, u32 meshID)
+GameObject::GameObject(int type) //Delete
 {
     oType = (ObjectType)type;
-
-    //Model
-    meshIdx = meshID;
 
     //General
     pos = vec3(2.5f, 1.5f, -2.0f);
@@ -19,33 +16,63 @@ GameObject::GameObject(int type, u32 meshID)
 
 }
 
+GameObject::GameObject(vec3 position, vec3 scale, vec3 rotation, Light newLight)
+{
+    oType = Lightning;
+
+    light = newLight;
+
+    //General
+    pos = position;
+    scl = scale;
+    rot = rotation;
+
+    localParamsOffset = 0;
+    localParamSize = 0;
+}
+
+GameObject::GameObject(vec3 position, vec3 scale, vec3 rotation, u32 meshID)
+{
+    oType = Model;
+
+    meshIdx = meshID;
+
+    //General
+    pos = position;
+    scl = scale;
+    rot = rotation;
+
+    localParamsOffset = 0;
+    localParamSize = 0;
+}
+
 void GameObject::Update(App* app)
 {
     worldMatrix = TransformPositionRotationScale(pos, rot, scl);
     worldViewProjection = app->camera.projection * app->camera.view * worldMatrix;
 }
 
-void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer* buffer)
+void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer* bufferModel, Buffer* bufferLight)
 {
     switch (oType)
     {
     case Model:
-        AlignHead(*buffer, uniformBlockAligment);
+        AlignHead(*bufferModel, uniformBlockAligment);
 
-        localParamsOffset = buffer->head;
+        localParamsOffset = bufferModel->head;
 
-        PushMat4(*buffer, worldMatrix);
-        PushMat4(*buffer, worldViewProjection);
+        PushMat4(*bufferModel, worldMatrix);
+        PushMat4(*bufferModel, worldViewProjection);
 
-        localParamSize = buffer->head - localParamsOffset;
+        localParamSize = bufferModel->head - localParamsOffset;
         break;
     case Lightning:
-        AlignHead(*buffer, sizeof(vec4));
+        AlignHead(*bufferLight, sizeof(vec4));
 
-        PushUInt(*buffer, light.type);
-        PushVec3(*buffer, light.color);
-        PushVec3(*buffer, light.direction);
-        PushVec3(*buffer, pos);
+        PushUInt(*bufferLight, light.type);
+        PushVec3(*bufferLight, light.color);
+        PushVec3(*bufferLight, light.direction);
+        PushVec3(*bufferLight, pos);
         break;
     default:;
     }

@@ -1,6 +1,11 @@
 
 #pragma once
 
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <stb_image.h>
+#include <stb_image_write.h>
 #include <glad/glad.h>
 
 struct App;
@@ -102,6 +107,29 @@ struct Program
 	GLsizei            lenght;
 };
 
+
+
+/* --------------------- SHADER --------------------- */
+GLuint CreateProgramFromSource(String programSource, const char* shaderName);
+
 u32 LoadProgram(App* app, const char* filepath, const char* programName);
+
+
+/* --------------------- TEXTURE --------------------- */
+void FreeImage(Image image);
+
+GLuint CreateTexture2DFromImage(Image image);
+
+Image LoadImage(const char* filename);
+
 u32 LoadTexture2D(App* app, const char* filepath);
+
+
+/* --------------------- MESH --------------------- */
+void ProcessAssimpMesh(const aiScene* scene, aiMesh* mesh, Mesh* myMesh, u32 baseMeshMaterialIndex, vector<u32>& submeshMaterialIndices);
+
+void ProcessAssimpMaterial(App* app, aiMaterial* material, Material& myMaterial, String directory);
+
+void ProcessAssimpNode(const aiScene* scene, aiNode* node, Mesh* myMesh, u32 baseMeshMaterialIndex, vector<u32>& submeshMaterialIndices);
+
 u32 LoadModel(App* app, const char* filename);
