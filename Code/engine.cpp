@@ -91,7 +91,7 @@ void App::Init()
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
 
     cBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
-
+    /*
     // FrameBuffer
     glGenTextures(1, &colorAttachmentHandle);
     glBindTexture(  GL_TEXTURE_2D, colorAttachmentHandle);
@@ -138,7 +138,7 @@ void App::Init()
 
     glDrawBuffers(1, &colorAttachmentHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, 6);
-
+    */
     // Geometry
     glGenBuffers(1, &embeddedVertices);
     glBindBuffer(GL_ARRAY_BUFFER, embeddedVertices);
@@ -167,19 +167,7 @@ void App::Init()
 
     texturedMeshProgramIdx = LoadProgram(this, "shaders.glsl", "TEXTURED_MESH");
     Program& texturedMeshProgram = programs[texturedMeshProgramIdx];
-    glGetProgramiv(texturedMeshProgram.handle, GL_ACTIVE_ATTRIBUTES, &texturedMeshProgram.lenght);
-
-    GLchar attribName[128];
-    GLsizei attribLenght;
-    GLint attribSize;
-    GLenum attribType;
-    for (u32 i = 0; i < texturedMeshProgram.lenght; ++i)
-    {
-        glGetActiveAttrib(texturedMeshProgram.handle, i, ARRAY_COUNT(attribName), &attribLenght, &attribSize, &attribType, attribName);
-        GLuint attributeLocation = glGetAttribLocation(texturedMeshProgram.handle, attribName);
-
-        texturedMeshProgram.vertexInputLayout.attributes.push_back({ (u8)attributeLocation, (u8)attribSize });
-    }
+    texturedMeshTexture = glGetUniformLocation(texturedMeshProgram.handle, "uTexture");
 
     diceTexIdx = LoadTexture2D(this, "dice.png");
     LoadTexture2D(this, "color_white.png");
@@ -191,7 +179,7 @@ void App::Init()
 
     Light newLight = { 
     LightType::Point,
-    vec3 ( 255, 0, 0 ),
+    vec3 ( 1.0, 0.0, 0.0 ),
     vec3 ( 0.0, 0.0, 0.0 ) };
     gameObject.push_back(GameObject{ vec3(0.0), vec3(1.0), vec3(0.0), newLight });
 }
@@ -256,7 +244,7 @@ void App::Update()
 
     PushVec3(cBuffer, camera.pos);
     PushUInt(cBuffer, lightSize);
-    PushData(cBuffer, helper.data, helper.head);
+    PushData(cBuffer, helper.data, helper.head - lightParamsOffset);
     
     globalParamsSize = cBuffer.head - globalParamsOffset;
 
@@ -294,12 +282,13 @@ void App::Render()
         break;
         case Mode::Mode_TexturedMesh:
         {
-            glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
+            //glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
 
-            GLuint drawBuffers[] = { colorAttachmentHandle };
-            glDrawBuffers(ARRAY_COUNT(drawBuffers), drawBuffers);
+            //GLuint drawBuffers[] = { colorAttachmentHandle };
+            //glDrawBuffers(ARRAY_COUNT(drawBuffers), drawBuffers);
 
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glViewport(0, 0, displaySize.x, displaySize.y);
@@ -313,20 +302,21 @@ void App::Render()
             {
                 if (go.IsType(ObjectType::Model))
                 {
-                    Mesh& mesh = meshes[go.MeshID()];
-
+                    u32 asdf = go.GetLocalOffset();
+                    u32 asde = go.GetLocalSize();
                     glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, go.GetLocalOffset(), go.GetLocalSize());
 
+                    Mesh& mesh = meshes[go.MeshID()];
                     for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                     {
                         GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                            glBindVertexArray(vao);
+                        glBindVertexArray(vao);
 
-                            Material& submeshMaterial = materials[go.MaterialID(i)];
+                        Material& submeshMaterial = materials[go.MaterialID(i)];
 
+                        glUniform1i(texturedMeshTexture, 0);
                         glActiveTexture(GL_TEXTURE0);
                         glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
-                        glUniform1i(texturedMeshProgram_uTexture, 0);
 
                         Submesh& submesh = mesh.submeshes[i];
                         glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
@@ -336,7 +326,7 @@ void App::Render()
             }
 
             glUseProgram(0);
-            glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
+            //glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
         }
         default:;
     }

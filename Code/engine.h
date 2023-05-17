@@ -64,7 +64,6 @@ private:
     // program indices
     u32 texturedGeometryProgramIdx;
     u32 texturedMeshProgramIdx;
-    u32 texturedMeshProgram_uTexture;
     
     // texture indices
     u32 diceTexIdx;
@@ -88,6 +87,7 @@ private:
 
     // Location of the texture uniform in the textured quad shader
     GLuint programUniformTexture;
+    GLuint texturedMeshTexture;
 
     // VAO object to link our screen filling quad with our textured quad shader
     GLuint vao;

@@ -69,7 +69,7 @@ void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer* bufferModel, B
     case Lightning:
         AlignHead(*bufferLight, sizeof(vec4));
 
-        PushUInt(*bufferLight, light.type);
+        PushUInt(*bufferLight, (unsigned int)light.type);
         PushVec3(*bufferLight, light.color);
         PushVec3(*bufferLight, light.direction);
         PushVec3(*bufferLight, pos);
