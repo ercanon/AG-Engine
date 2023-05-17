@@ -94,6 +94,7 @@ struct Submesh
 struct Mesh
 {
 	vector<Submesh> submeshes;
+	vector<u32>		materialIdx;
 	GLuint			vertexBufferHandle;
 	GLuint			indexBufferHandle;
 };

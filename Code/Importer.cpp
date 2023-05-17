@@ -368,16 +368,9 @@ u32 LoadModel(App* app, const char* filename)
         return UINT32_MAX;
     }
 
-    app->meshes.push_back(Mesh{});
-    Mesh& mesh = app->meshes.back();
-    u32 meshIdx = (u32)app->meshes.size() - 1u;
-
-    app->gameObject.push_back(GameObject{ 0 });
-    GameObject& go = app->gameObject.back();
-    go.MeshID(meshIdx);
-    u32 modelIdx = (u32)app->gameObject.size() - 1u;
-
     String directory = GetDirectoryPart(MakeString(filename));
+
+    Mesh mesh = {};
 
     // Create a list of materials
     u32 baseMeshMaterialIndex = (u32)app->materials.size();
@@ -388,7 +381,7 @@ u32 LoadModel(App* app, const char* filename)
         ProcessAssimpMaterial(app, scene->mMaterials[i], material, directory);
     }
 
-    ProcessAssimpNode(scene, scene->mRootNode, &mesh, baseMeshMaterialIndex, go.GetMaterialID());
+    ProcessAssimpNode(scene, scene->mRootNode, &mesh, baseMeshMaterialIndex, mesh.materialIdx);
 
     aiReleaseImport(scene);
 
@@ -427,8 +420,11 @@ u32 LoadModel(App* app, const char* filename)
         indicesOffset += indicesSize;
     }
 
+    app->gameObject.push_back(GameObject{ directory.str, vec3(2.5f, 1.5f, -2.0f), vec3(0.45f), vec3(0.0f), mesh });
+    GameObject& go = app->gameObject.back();
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    return modelIdx;
+    return 0;
 }

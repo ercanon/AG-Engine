@@ -10,6 +10,19 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+ImGuiTreeNodeFlags SetFlags(Mesh node)
+{
+    // This flags allow to open the tree if you click on arrow or doubleClick on object, by default the tree is open  
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+    // If GameObject doesn't childrens = no collapsing and no arrow
+    if (node.submeshes.size() == 0)
+        flags |= ImGuiTreeNodeFlags_Leaf;
+
+
+    return flags;
+}
+
 GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
 {
     Submesh& submesh = mesh.submeshes[submeshIndex];
@@ -90,7 +103,8 @@ void App::Init()
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
 
-    cBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
+    lBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
+    mBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
     /*
     // FrameBuffer
     glGenTextures(1, &colorAttachmentHandle);
@@ -179,22 +193,59 @@ void App::Init()
 
     Light newLight = { 
     LightType::Point,
-    vec3 ( 1.0, 0.0, 0.0 ),
-    vec3 ( 0.0, 0.0, 0.0 ) };
-    gameObject.push_back(GameObject{ vec3(0.0), vec3(1.0), vec3(0.0), newLight });
+    vec3 ( 1.0f, 0.0f, 0.0f ),
+    vec3 ( 0.0f, 0.0f, 0.0f ),
+    vec3 (0.0f, 0.0f, 0.0f) };
+    lights.push_back(newLight);
 }
 
 void App::Gui()
 {
-    ImGui::Begin("Info");
-    ImGui::Text("FPS: %f", 1.0f / deltaTime);
+    ImGui::Begin("Hierarchy");
+    for (GameObject& go : gameObject)
+    {
+        if (ImGui::IsMouseReleased(0) && ImGui::IsItemHovered())
+            goPicked(&go);
+
+        if (ImGui::TreeNodeEx(go.GetName().c_str(), SetFlags(go.GetMesh())))
+        {
+            int size = go.GetMesh().submeshes.size();
+            for (int i = 0; i < size; ++i)
+            {
+                string subName = "Submesh " + to_string(i);
+                if (ImGui::TreeNodeEx(subName.c_str(), ImGuiTreeNodeFlags_Leaf))
+                    ImGui::TreePop();
+            }
+            ImGui::TreePop();
+        }
+    }
+
+    if (ImGui::IsWindowHovered() && ImGui::IsWindowFocused() && (ImGui::GetIO().MouseClicked[0] || ImGui::GetIO().MouseClicked[1]))
+        goPicked(nullptr);
     ImGui::End();
 
-    if (input.keys[Key::K_SPACE] == ButtonState::BUTTON_PRESSED)
+    ImGui::Begin("Inspector");
+    if (goPicked() != nullptr)
+    {
+        //if (item == ItemType::NONE)
+        //{
+        //    DrawDefaultInspector(obj);
+        //    obj->DrawEditor();
+        //}
+        //else
+        //{
+        //    DrawEditLists();
+        //}
+    }
+    ImGui::End();
+
+    if (input.keys[Key::K_F12] == ButtonState::BUTTON_PRESSED)
         ImGui::OpenPopup("OpenGL Info");
 
     if (ImGui::BeginPopup("OpenGL Info"))
     {
+        ImGui::Text("FPS: %f", 1.0f / deltaTime);
+
         ImGui::Text("Version: %s", glInfo.glVersion.c_str());
         ImGui::Text("Renderer: %s", glInfo.glRenderer.c_str());
         ImGui::Text("Vendor: %s", glInfo.glVendor.c_str());
@@ -229,26 +280,31 @@ void App::Update()
     camera.Update(this);
 
 
-    MapBuffer(cBuffer, GL_WRITE_ONLY);
-    uint lightSize = 0;
-    u32 lightParamsOffset = cBuffer.head;
-    Buffer helper = cBuffer;
+    MapBuffer(lBuffer, GL_WRITE_ONLY);
+    globalParamsOffset = lBuffer.head;
+
+    PushVec3(lBuffer, camera.pos);
+    PushUInt(lBuffer, lights.size());
+
+    for (Light& light : lights)
+    {
+        AlignHead(lBuffer, sizeof(vec4));
+
+        PushUInt(lBuffer, (unsigned int)light.type);
+        PushVec3(lBuffer, light.color);
+        PushVec3(lBuffer, light.direction);
+        PushVec3(lBuffer, light.pos);
+    }
+    globalParamsSize = lBuffer.head - globalParamsOffset;
+    UnmapBuffer(lBuffer);
+
+    MapBuffer(mBuffer, GL_WRITE_ONLY);
     for (GameObject& go : gameObject)
     {
         go.Update(this);
-        go.HandleBuffer(uniformBlockAligment, &cBuffer, &helper);
-        if (go.IsType(ObjectType::Lightning)) lightSize++;
+        go.HandleBuffer(uniformBlockAligment, &mBuffer);
     }
-
-    globalParamsOffset = cBuffer.head;
-
-    PushVec3(cBuffer, camera.pos);
-    PushUInt(cBuffer, lightSize);
-    PushData(cBuffer, helper.data, helper.head - lightParamsOffset);
-    
-    globalParamsSize = cBuffer.head - globalParamsOffset;
-
-    UnmapBuffer(cBuffer);
+    UnmapBuffer(mBuffer);
 }
 
 void App::Render()
@@ -284,11 +340,11 @@ void App::Render()
         {
             //glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
 
-            //GLuint drawBuffers[] = { colorAttachmentHandle };
-            //glDrawBuffers(ARRAY_COUNT(drawBuffers), drawBuffers);
+            //GLuint drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+            //glDrawBuffers(1, drawBuffers);
 
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glEnable(GL_DEPTH_TEST);
+            //glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glViewport(0, 0, displaySize.x, displaySize.y);
@@ -296,38 +352,34 @@ void App::Render()
             Program& texturedMeshProgram = programs[texturedMeshProgramIdx];
             glUseProgram(texturedMeshProgram.handle);
 
-            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(0), cBuffer.head, globalParamsOffset, globalParamsSize);
+            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(0), lBuffer.head, globalParamsOffset, globalParamsSize);
 
             for (GameObject& go : gameObject)
             {
-                if (go.IsType(ObjectType::Model))
+                Mesh mesh = go.GetMesh();
+                for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                 {
-                    u32 asdf = go.GetLocalOffset();
-                    u32 asde = go.GetLocalSize();
-                    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, go.GetLocalOffset(), go.GetLocalSize());
+                    GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
+                    glBindVertexArray(vao);
 
-                    Mesh& mesh = meshes[go.MeshID()];
-                    for (u32 i = 0; i < mesh.submeshes.size(); ++i)
-                    {
-                        GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                        glBindVertexArray(vao);
+                    Material& submeshMaterial = materials[go.GetMesh().materialIdx[i]];
 
-                        Material& submeshMaterial = materials[go.MaterialID(i)];
+                    glUniform1i(texturedMeshTexture, 0);
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
 
-                        glUniform1i(texturedMeshTexture, 0);
-                        glActiveTexture(GL_TEXTURE0);
-                        glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
+                    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), mBuffer.head, go.GetLocalOffset(), go.GetLocalSize());
 
-                        Submesh& submesh = mesh.submeshes[i];
-                        glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                        glBindVertexArray(0);
-                    }
+                    Submesh& submesh = mesh.submeshes[i];
+                    glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
+                    glBindVertexArray(0);
                 }
             }
 
             glUseProgram(0);
             //glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
         }
+        break;
         default:;
     }
 }

@@ -36,7 +36,6 @@
 
 
 #ifdef TEXTURED_MESH
-
 	struct Light
 	{
 		unsigned int type;

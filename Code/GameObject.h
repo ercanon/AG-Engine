@@ -3,12 +3,6 @@
 
 struct Buffer;
 
-enum ObjectType
-{
-	Model,
-	Lightning
-};
-
 enum LightType
 {
 	Directional,
@@ -20,50 +14,42 @@ struct Light
 	LightType type;
 	vec3	  color;
 	vec3	  direction;
+	vec3	  pos;
 };
 
 class GameObject
 {
 public:
-	GameObject(int type);
-	GameObject(vec3 position, vec3 scale, vec3 rotation, Light newLight);
-	GameObject(vec3 position, vec3 scale, vec3 rotation, u32 meshID);
+	GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Mesh mesh);
 	virtual ~GameObject() {};
 	void Update(App* app);
-	void HandleBuffer(GLint uniformBlockAligment, Buffer* bufferModel, Buffer* bufferLigh);
+	void HandleBuffer(GLint uniformBlockAligment, Buffer* bufferModel);
 
 	mat4 TransformScale(const vec3& scaleFactors);
 	mat4 TransformPositionScale(const vec3& pos, const vec3& scaleFactors);
 	mat4 TransformPositionRotationScale(const vec3& pos, const vec3& rotation, const vec3& scaleFactors);
 
-	// Get/Set Function
-	virtual u32 MeshID(u32 meshID = -1) { return meshID != -1 ? meshIdx = meshID : meshIdx; }
-	virtual u32 MaterialID(u32 index, u32 materialID = -1) { return materialID != -1 ? materialIdx[index] = materialID : materialIdx[index]; }
-
 	// Get Funcion
-	virtual vector<u32>& GetMaterialID() { return materialIdx; }
-	virtual mat4 GetView() { return worldMatrix; }
-	virtual mat4 GetProjection() { return worldViewProjection; }
+	virtual Mesh GetMesh() { return objMesh; }
 	virtual u32 GetLocalOffset() { return localParamsOffset; }
 	virtual u32 GetLocalSize() { return localParamSize; }
-	virtual bool IsType(ObjectType type) { return type == oType; }
+	virtual string GetName() { return objName; }
 
 private:
 	//General
-	ObjectType oType;
+	string objName;
 	vec3 pos;
 	vec3 scl;
 	vec3 rot;
-
-	//Model
-	u32			meshIdx;
-	vector<u32>	materialIdx;
-
-	//Light
-	Light light;
 
 	mat4 worldMatrix;
 	mat4 worldViewProjection;
 	u32 localParamsOffset;
 	u32 localParamSize;
+
+	//Model
+	Mesh objMesh;
+
+	//Light
+	Light light;
 };

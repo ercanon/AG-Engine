@@ -40,11 +40,12 @@ public:
     virtual bool IsRunning(bool run = -1) { return run != -1 ? isRunning = run : isRunning; }
     virtual ivec2 dispSize(vec2 size = vec2(-1)) { return size != vec2(-1) ? displaySize = size : displaySize; }
     virtual f32 dt(f32 set = -1) { return set != -1 ? deltaTime = set : deltaTime; }
+    virtual GameObject* goPicked(GameObject* setGO = nullptr) { return setGO != nullptr ? pickedGO = setGO : pickedGO; }
 
     vector<Texture>     textures;
     vector<Material>    materials;
-    vector<Mesh>        meshes;
     vector<GameObject>  gameObject;
+    vector<Light>       lights;
     vector<Program>     programs;
     Camera              camera;
     Input               input;
@@ -60,6 +61,7 @@ private:
     char gpuName[64];
     char openGlVersion[64];
     ivec2 displaySize;
+    GameObject* pickedGO;
 
     // program indices
     u32 texturedGeometryProgramIdx;
@@ -72,7 +74,8 @@ private:
     Mode mode;
 
     // Buffer
-    Buffer cBuffer;
+    Buffer mBuffer;
+    Buffer lBuffer;
     GLint uniformBlockAligment;
     u32 globalParamsOffset;
     u32 globalParamsSize;
@@ -92,8 +95,3 @@ private:
     // VAO object to link our screen filling quad with our textured quad shader
     GLuint vao;
 };
-
-
-GLuint CreateProgramFromSource(String programSource, const char* shaderName);
-
-

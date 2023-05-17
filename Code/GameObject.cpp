@@ -1,41 +1,11 @@
 #include "Engine.h"
 
-GameObject::GameObject(int type) //Delete
+
+GameObject::GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Mesh mesh)
 {
-    oType = (ObjectType)type;
+    objName = name;
 
-    //General
-    pos = vec3(2.5f, 1.5f, -2.0f);
-    scl = vec3(0.45f);
-    rot = vec3(0);
-
-    worldMatrix = mat4(1.0);
-    worldViewProjection = mat4(0.0);
-    localParamsOffset = 0;
-    localParamSize = 0;
-
-}
-
-GameObject::GameObject(vec3 position, vec3 scale, vec3 rotation, Light newLight)
-{
-    oType = Lightning;
-
-    light = newLight;
-
-    //General
-    pos = position;
-    scl = scale;
-    rot = rotation;
-
-    localParamsOffset = 0;
-    localParamSize = 0;
-}
-
-GameObject::GameObject(vec3 position, vec3 scale, vec3 rotation, u32 meshID)
-{
-    oType = Model;
-
-    meshIdx = meshID;
+    objMesh = mesh;
 
     //General
     pos = position;
@@ -48,34 +18,20 @@ GameObject::GameObject(vec3 position, vec3 scale, vec3 rotation, u32 meshID)
 
 void GameObject::Update(App* app)
 {
-    worldMatrix = TransformPositionRotationScale(pos, rot, scl);
-    worldViewProjection = app->camera.projection * app->camera.view * worldMatrix;
+    worldMatrix = TransformPositionScale(pos, scl);
+    worldViewProjection = app->camera.projection * app->camera.view * translate(worldMatrix, vec3(1.0f, 1.0f, 0.0f));
 }
 
-void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer* bufferModel, Buffer* bufferLight)
+void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer* bufferModel)
 {
-    switch (oType)
-    {
-    case Model:
-        AlignHead(*bufferModel, uniformBlockAligment);
+    AlignHead(*bufferModel, uniformBlockAligment);
 
-        localParamsOffset = bufferModel->head;
+    localParamsOffset = bufferModel->head;
 
-        PushMat4(*bufferModel, worldMatrix);
-        PushMat4(*bufferModel, worldViewProjection);
+    PushMat4(*bufferModel, worldMatrix);
+    PushMat4(*bufferModel, worldViewProjection);
 
-        localParamSize = bufferModel->head - localParamsOffset;
-        break;
-    case Lightning:
-        AlignHead(*bufferLight, sizeof(vec4));
-
-        PushUInt(*bufferLight, (unsigned int)light.type);
-        PushVec3(*bufferLight, light.color);
-        PushVec3(*bufferLight, light.direction);
-        PushVec3(*bufferLight, pos);
-        break;
-    default:;
-    }
+    localParamSize = bufferModel->head - localParamsOffset;
 }
 
 mat4 GameObject::TransformScale(const vec3& scaleFactors)
