@@ -344,7 +344,7 @@ void App::Render()
             //glDrawBuffers(1, drawBuffers);
 
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            //glEnable(GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glViewport(0, 0, displaySize.x, displaySize.y);
