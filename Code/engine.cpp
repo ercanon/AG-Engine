@@ -290,7 +290,7 @@ void App::Update()
     {
         AlignHead(lBuffer, sizeof(vec4));
 
-        PushUInt(lBuffer, (unsigned int)light.type);
+        PushUInt(lBuffer, light.type);
         PushVec3(lBuffer, light.color);
         PushVec3(lBuffer, light.direction);
         PushVec3(lBuffer, light.pos);
