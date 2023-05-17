@@ -7,6 +7,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define BINDING(b) b
+
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>

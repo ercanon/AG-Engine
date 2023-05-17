@@ -219,6 +219,7 @@ void App::Init()
     LoadTexture2D(this, "color_normal.png");
     LoadTexture2D(this, "color_magenta.png");
     LoadModel(this, "Patrick/Patrick.obj");
+    LoadModel(this, "Patrick/Patrick.obj");
 }
 
 void App::Gui()
@@ -275,7 +276,7 @@ void App::Update()
     for (GameObject& go : gameObject)
     {
         go.Update(this);
-        go.HandleBuffer(uniformBlockAligment, cBuffer);
+        go.HandleBuffer(uniformBlockAligment, &cBuffer);
     }
 
     globalParamsSize = cBuffer.head - globalParamsOffset;
@@ -327,24 +328,20 @@ void App::Render()
 
             for (GameObject& go : gameObject)
             {
-                u32* localParams = go.GetLocalParams();
-                glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, localParams[0], localParams[1]);
                 Mesh& mesh = meshes[go.MeshID()];
+
+                //glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), cBuffer.head, go.GetLocalOffset(), go.GetLocalSize());
 
                 for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                 {
                     GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
                     glBindVertexArray(vao);
 
-                    u32 submeshMaterialIdx = go.MaterialID(i);
-                    Material& submeshMaterial = materials[submeshMaterialIdx];
+                    Material& submeshMaterial = materials[go.MaterialID(i)];
 
                     glActiveTexture(GL_TEXTURE0);
                     glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
                     glUniform1i(texturedMeshProgram_uTexture, 0);
-
-                    glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldMatrix"), 1, GL_FALSE, value_ptr(go.GetView()));
-                    glUniformMatrix4fv(glGetUniformLocation(texturedMeshProgram.handle, "uWorldViewProjectionMatrix"), 1, GL_FALSE, value_ptr(go.GetProjection()));
 
                     Submesh& submesh = mesh.submeshes[i];
                     glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);

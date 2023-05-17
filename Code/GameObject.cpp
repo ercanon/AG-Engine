@@ -1,36 +1,51 @@
 #include "Engine.h"
 
-GameObject::GameObject(int type)
+GameObject::GameObject(int type, u32 meshID)
 {
     oType = (ObjectType)type;
+
+    //Model
+    meshIdx = meshID;
+
+    //General
+    pos = vec3(2.5f, 1.5f, -2.0f);
+    scl = vec3(0.45f);
+    rot = vec3(0);
+
+    worldMatrix = mat4(1.0);
+    worldViewProjection = mat4(0.0);
+    localParamsOffset = 0;
+    localParamSize = 0;
+
 }
 
 void GameObject::Update(App* app)
 {
-    worldMatrix = TransformPositionScale(vec3(2.5f, 1.5f, -2.0f), vec3(0.45f));
+    worldMatrix = TransformPositionRotationScale(pos, rot, scl);
     worldViewProjection = app->camera.projection * app->camera.view * worldMatrix;
 }
 
-void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer buffer)
+void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer* buffer)
 {
     switch (oType)
     {
     case Model:
-        AlignHead(buffer, uniformBlockAligment);
+        AlignHead(*buffer, uniformBlockAligment);
 
-        localParamsOffset = buffer.head;
+        localParamsOffset = buffer->head;
 
-        PushMat4(buffer, worldMatrix);
-        PushMat4(buffer, worldViewProjection);
-        localParamSize = buffer.head - localParamsOffset;
+        PushMat4(*buffer, worldMatrix);
+        PushMat4(*buffer, worldViewProjection);
+
+        localParamSize = buffer->head - localParamsOffset;
         break;
     case Lightning:
-        AlignHead(buffer, sizeof(vec4));
+        AlignHead(*buffer, sizeof(vec4));
 
-        PushUInt(buffer, light.type);
-        PushVec3(buffer, light.color);
-        PushVec3(buffer, light.direction);
-        PushVec3(buffer, pos);
+        PushUInt(*buffer, light.type);
+        PushVec3(*buffer, light.color);
+        PushVec3(*buffer, light.direction);
+        PushVec3(*buffer, pos);
         break;
     default:;
     }
