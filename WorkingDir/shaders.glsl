@@ -76,7 +76,7 @@
 
 		vPosition = vec3( uWorldMatrix * vec4(aPosition, 1.0) );
 		vNormal   = vec3( uWorldMatrix * vec4(aNormal, 0.0) );
-		vViewDir = uCameraPosition - vPosition;
+		vViewDir = normalize(uCameraPosition - vPosition);
 		gl_Position = uWorldViewProjectionMatrix * vec4(aPosition, 1.0);
 	}
 	
@@ -122,10 +122,10 @@
 
 		    lightStrenght += (ambient + diffuse + specular) * texture(uTexture, vTexCoord).rgb;
 		}
-		oColor = vec4(lightStrenght, 1.0);
+		//oColor = vec4(lightStrenght, 1.0);
 		oNormals = vec4(normalize(vNormal),1.0);
 		oPosition = vec4(vPosition,1.0);
-		//oColor = vec4(uLight[0].color, 1.0);
+		oColor = vec4(uLight[0].color, 1.0);
 	}
 	#endif
 #endif

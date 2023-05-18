@@ -35,7 +35,7 @@ void Camera::Update(App* app)
 			target = goSelect->objPos;
 	}
 
-	projection = perspective(radians(90.0f), aspectRatio, zNear, zFar);
+	projection = perspective(radians(60.0f), aspectRatio, zNear, zFar);
 	view = lookAt(pos, target, upAxis);
 
 	ControlCamera(app);
@@ -43,7 +43,6 @@ void Camera::Update(App* app)
 
 void Camera::ControlCamera(App* app)
 {
-	
 	float speed = 15.0f * app->dt();
 	if (app->input.keys[K_CONTROL] == BUTTON_PRESSED) speed *= 2;
 
@@ -55,50 +54,11 @@ void Camera::ControlCamera(App* app)
 		pos -= rightAxis * speed;
 	if (app->input.keys[K_D] == BUTTON_PRESSED)
 		pos += rightAxis * speed;
-
-	/*
-	// Auxiliar variables
-	vec3 newPos = pos;
-	vec3 newFront = rightAxis;
-	vec3 newUp = upAxis;
-
-	// Inputs for the camera
-	if (app->input.keys[K_T] == BUTTON_PRESS)
-	{
-		newUp = vec3(0, 1, 0);
-		newFront = -vec3(0, 0, 1);
-	}
-	if (app->input.mouseButtons[RIGHT] == BUTTON_PRESSED)
-	{
-		if (app->input.keys[K_A] == BUTTON_PRESSED) newPos += cameraFrustum.Front() * speed;
-		if (app->input.keys[K_D] == BUTTON_PRESSED) newPos -= cameraFrustum.Front() * speed;
-
-		if (app->input.keys[K_A] == BUTTON_PRESSED) newPos -= cameraFrustum.WorldRight() * speed;
-		if (app->input.keys[K_D] == BUTTON_PRESSED) newPos += cameraFrustum.WorldRight() * speed;
-
-		if (app->input.keys[K_A] == BUTTON_PRESSED) newPos -= cameraFrustum.Up() * speed;
-		if (app->input.keys[K_D] == BUTTON_PRESSED) newPos += cameraFrustum.Up() * speed;
-
-		RotateAround(app->deltaTime, newFront, newUp);
-	}
-
-	cameraFrustum.SetFrame(newPos, newFront, newUp);
-	CalculateViewMatrix();
-	*/
+	if (app->input.keys[K_Q] == BUTTON_PRESSED)
+		pos -= upAxis * speed;
+	if (app->input.keys[K_E] == BUTTON_PRESSED)
+		pos += upAxis * speed;
 }
-/*
-void Camera::UpdateCameraVectors()
-{
-	// calculate the new Front vector
-	forwardAxis.x = cos(radians(yaw)) * cos(radians(pitch));
-	forwardAxis.y = sin(radians(pitch));
-	forwardAxis.z = sin(radians(yaw)) * cos(radians(pitch));
-	forwardAxis = normalize(front);
-	// also re-calculate the Right and Up vector
-	rightAxis = normalize(cross(front, worldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-	upAxis = normalize(cross(right, front));
-}
-*/
 /*
 void Camera::RotateAround(float dt, vec3& newFront, vec3& newUp)
 {

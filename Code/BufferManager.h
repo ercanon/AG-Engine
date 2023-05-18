@@ -23,11 +23,16 @@ struct Buffer
 
 struct FrameBuffer
 {
-    GLuint colorAttachmentHandle;
-    GLuint depthAttachmentHandle;
     GLuint frameBufferHandle;
+    GLuint colorAttachment;
     GLuint normalAttachment;
     GLuint positionAttachment;
+    GLuint depthAttachment;
+
+    bool color;
+    bool normal;
+    bool position;
+    bool depth;
 };
 
 bool IsPowerOf2(u32 value);
