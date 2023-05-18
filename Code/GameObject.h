@@ -42,6 +42,7 @@ public:
 	virtual Mesh GetMesh() { return objMesh; }
 	virtual u32 GetLocalOffset() { return localParamsOffset; }
 	virtual u32 GetLocalSize() { return localParamSize; }
+	virtual Light* GetLight() { return &light; }
 
 	virtual bool IsType(ObjectType type) { return type == objType; }
 

@@ -76,6 +76,7 @@ void GameObject::HandleBuffer(Buffer* buffer)
         PushVec3(*buffer, light.color);
         PushVec3(*buffer, light.direction);
         PushVec3(*buffer, objPos);
+        PushVec3(*buffer, objScale);
     }
 }
 

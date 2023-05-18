@@ -23,12 +23,19 @@
 	in vec2 vTexCoord;
 	
 	uniform sampler2D uTexture;
+	uniform bool isDepth;
 	
 	layout(location = 0) out vec4 oColor;
 	
 	void main()
 	{
-		oColor = texture(uTexture, vTexCoord);
+		if (isDepth)
+		{
+			float z = texture(uTexture, vTexCoord).r * 2.0 - 1.0;
+			oColor = vec4(vec3((2.0 * 0.1 * 100.0) / (100.0 + 0.1 - z * (100.0 - 0.1)) / 100.0), 1);
+		}
+		else
+			oColor = texture(uTexture, vTexCoord);
 	}
 	#endif
 #endif
@@ -42,6 +49,7 @@
 		vec3		 color;
 		vec3		 direction;
 		vec3		 position;
+		vec3		 intensity;
 	};
 
 	#if defined(VERTEX) ///////////////////////////////////////////////////
@@ -106,18 +114,38 @@
 		vec3 lightStrenght = vec3(0.0);
 		for(int i = 0; i< uLightCount; ++i)
 		{
-		    vec3 ambient = 0.2 * uLight[i].color;
-		    
-		    float diff = max(dot(normalize(vNormal), normalize(uLight[i].direction)), 0.0);
+			if(uLight[i].type == 0)
+			{
+				vec3 ambient = uLight[i].intensity.x * uLight[i].color;
+				
+				float diff = max(dot(normalize(vNormal), normalize(uLight[i].direction)), 0.0);
+				vec3 diffuse = diff * uLight[i].color * uLight[i].intensity.y;
 
-		    vec3 diffuse = diff * uLight[i].color;
+				vec3 reflectDir = reflect(normalize(-uLight[i].direction), normalize(vNormal));
+				float spec = pow(max(dot(normalize(vViewDir), reflectDir), 0.0), 32);
+				vec3 specular = uLight[i].intensity.z * spec * uLight[i].color;
 
-		    vec3 reflectDir = reflect(normalize(-uLight[i].direction), normalize(vNormal));
+				lightStrenght += (ambient + diffuse + specular) * texture(uTexture, vTexCoord).rgb;
+			}
+			else if(uLight[i].type == 1)
+			{
+				vec3 lightDir = normalize(uLight[i].position - vPosition);
 
-		    float spec = pow(max(dot(normalize(vViewDir), reflectDir), 0.0), 32);
-		    vec3 specular = 0.5 * spec * uLight[i].color;
+				vec3 ambient = uLight[i].intensity.x * uLight[i].color;
 
-		    lightStrenght += (ambient + diffuse + specular) * texture(uTexture, vTexCoord).rgb;
+				float diff = max(dot(normalize(vNormal), lightDir), 0.0);
+				vec3 diffuse = diff * uLight[i].color * uLight[i].intensity.y;
+
+				float dist = length(uLight[i].position - vPosition);
+				float attenuation = 1.0 /(pow(dist, 2));
+
+				vec3 reflectDir = reflect(normalize(-lightDir), normalize(vNormal));
+				float spec = pow(max(dot(normalize(vViewDir), reflectDir), 0.0), 32);
+				vec3 specular = uLight[i].intensity.z * spec * uLight[i].color;
+
+				diffuse *= attenuation * 2;
+				lightStrenght += (ambient + diffuse + specular) * texture(uTexture, vTexCoord).rgb;
+			}
 		}
 		
 		oColor = vec4(lightStrenght, 1.0);

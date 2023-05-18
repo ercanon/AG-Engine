@@ -266,16 +266,46 @@ void App::Init()
     LoadModel(this, "Patrick/Patrick.obj");
 
     Light newLight = { 
-    LightType::Directional,
+    LightType::Point,
     vec3 ( 1.0f, 1.0f, 1.0f ),
-    vec3 ( 1.0f, 1.0f, 1.0f )};
+    vec3(1.0f, 1.0f, 1.0f)};
     lightSize++;
-    gameObject.push_back(GameObject{ "Light", vec3(0.0), vec3(1.0), vec3(0.0), newLight});
+    gameObject.push_back(GameObject{ "Point Light", vec3(0.0f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), newLight});
 }
 
 void App::Gui()
 {
+    ImGui::Begin("Generate");
+    ImGui::Text("Model");
+    if (ImGui::Button("Patrick", ImVec2(ImGui::GetWindowSize().x - 15, 20)))
+        LoadModel(this, "Patrick/Patrick.obj");
+    ImGui::Text("Light");
+    if (ImGui::Button("Direct", ImVec2((ImGui::GetWindowSize().x/2) - 12, 20)))
+    {
+        Light newLight = {
+        LightType::Directional,
+        vec3(1.0f),
+        vec3(1.0f) };
+        lightSize++;
+        gameObject.push_back(GameObject{ "Directional Light", vec3(0.0f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), newLight });
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pointer", ImVec2((ImGui::GetWindowSize().x/2) - 12, 20)))
+    {
+        Light newLight = {
+        LightType::Point,
+        vec3(1.0f),
+        vec3(1.0f) };
+        lightSize++;
+        gameObject.push_back(GameObject{ "Point Light", vec3(0.0f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), newLight });
+    }
+    if (ImGui::IsWindowHovered())
+        pickedGO = nullptr;
+    ImGui::End();
+
     ImGui::Begin("Hierarchy");
+    if (input.keys[Key::K_M] == ButtonState::BUTTON_PRESSED && pickedGO != nullptr)
+        delete pickedGO;
     for (GameObject& go : gameObject)
     {
         if (ImGui::TreeNodeEx(go.objName.c_str(), ImGuiTreeNodeFlags_Leaf))
@@ -302,10 +332,6 @@ void App::Gui()
         ImGui::Separator();
         if (ImGui::CollapsingHeader("Transform"))
         {
-            ImGui::PushItemWidth(90);
-
-            DrawVec3("Position: ", pickedGO->objPos);
-            DrawVec3("Rotation: ", pickedGO->objRot);
             /*
             rotationInEuler.x = RADTODEG * rotationEditor.x;
             rotationInEuler.y = RADTODEG * rotationEditor.y;
@@ -315,17 +341,45 @@ void App::Gui()
                 rotationInEuler.x = DEGTORAD * rotationInEuler.x;
                 rotationInEuler.y = DEGTORAD * rotationInEuler.y;
                 rotationInEuler.z = DEGTORAD * rotationInEuler.z;
-
+            
                 mat4 rotationDelta = mat4::FromEulerXYZ(rotationInEuler.x - rotationEditor.x, rotationInEuler.y - rotationEditor.y, rotationInEuler.z - rotationEditor.z);
                 rotation = rotation * rotationDelta;
                 rotationEditor = rotationInEuler;
             }
             */
-            DrawVec3("Scale: ", pickedGO->objScale);
 
+            if (pickedGO->IsType(ObjectType::Model))
+            {
+                DrawVec3("Position: ",  pickedGO->objPos);
+                DrawVec3("Rotation: ",  pickedGO->objRot);
+                DrawVec3("Scale: ",     pickedGO->objScale);
+                ImGui::Spacing();
+                ImGui::Spacing();
+                if (ImGui::Button("Reset", ImVec2(ImGui::GetWindowSize().x - 15, 20)))
+                {
+                    pickedGO->objPos = vec3(0.0f, 0.0f, 10.0f);
+                    pickedGO->objRot = vec3(0.0f);
+                    pickedGO->objScale = vec3(1.0f);
+                }
+            }
+            else if (pickedGO->IsType(ObjectType::Lightning))
+            {
+                DrawVec3("Position: ",  pickedGO->objPos);
+                DrawVec3("Intensity: ", pickedGO->objScale);
+                DrawVec3("Color: ",     pickedGO->GetLight()->color);
+                DrawVec3("Direction: ", pickedGO->GetLight()->direction);
+                ImGui::Spacing();
+                ImGui::Spacing();
+                if (ImGui::Button("Reset", ImVec2(ImGui::GetWindowSize().x - 15, 20)))
+                {
+                    pickedGO->objPos = vec3(0.0f);
+                    pickedGO->objScale = vec3(0.2f, 1.0f, 0.5f);
+                    pickedGO->GetLight()->color = vec3(1.0f);
+                    pickedGO->GetLight()->direction = vec3(0.0f, 0.0f, 1.0f);
+                }
+            }
             ImGui::Separator();
         }
-
         ImGui::End();
     }
 
@@ -340,9 +394,12 @@ void App::Gui()
         if (!frameBuffer.position) frameBuffer.color = false;
     if (ImGui::Checkbox("Depth", &frameBuffer.depth))
         if (!frameBuffer.depth) frameBuffer.color = false;
+
+    if (ImGui::IsWindowHovered())
+        pickedGO = nullptr;
     ImGui::End();
 
-    if (input.keys[Key::K_F12] == ButtonState::BUTTON_PRESSED)
+    if (input.keys[Key::K_F1] == ButtonState::BUTTON_PRESSED)
         ImGui::OpenPopup("OpenGL Info");
 
     if (ImGui::BeginPopup("OpenGL Info"))
@@ -460,10 +517,8 @@ void App::Render()
             glUseProgram(texturedGeomProgram.handle);
             glBindVertexArray(vao);
 
-            //glEnable(GL_BLEND);
-            //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
             glUniform1i(glGetUniformLocation(texturedGeomProgram.handle, "uTexture"), 0);
+            glUniform1i(glGetUniformLocation(texturedGeomProgram.handle, "isDepth"), frameBuffer.depth == true && frameBuffer.normal == false && frameBuffer.position == false ? true : false);
             glActiveTexture(GL_TEXTURE0);
             if (frameBuffer.color)
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.colorAttachment);
