@@ -55,7 +55,7 @@
 	layout (binding = 0, std140) uniform GlobalParams
 	{
 		vec3		 uCameraPosition;
-		unsigned int uLightCount;
+		//unsigned int uLightCount;
 		Light		 uLight[16];
 	};
 
@@ -93,7 +93,7 @@
 	layout (binding = 0, std140) uniform GlobalParams
 	{
 		vec3		 uCameraPosition;
-		unsigned int uLightCount;
+		//unsigned int uLightCount;
 		Light		 uLight[16];
 	};
 	

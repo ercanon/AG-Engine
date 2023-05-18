@@ -19,7 +19,7 @@ public:
 	vec3 direction;
 
 	vec3 upVector;
-	vec3 upAxis;
+	vec3 cameraForward;
 	vec3 forwardAxis;
 	vec3 rightAxis;
 

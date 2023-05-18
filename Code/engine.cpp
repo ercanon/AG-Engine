@@ -103,8 +103,8 @@ void App::Init()
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
 
-    lBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
-    mBuffer = CreateBuffer(maxUniformBufferSize, GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
+    lBuffer = CreateConstantBuffer(maxUniformBufferSize);
+    mBuffer = CreateConstantBuffer(maxUniformBufferSize);
     /*
     // FrameBuffer
     glGenTextures(1, &colorAttachmentHandle);
@@ -196,7 +196,7 @@ void App::Init()
     vec3 ( 1.0f, 0.0f, 0.0f ),
     vec3 ( 0.0f, 0.0f, 0.0f ),
     vec3 (0.0f, 0.0f, 0.0f) };
-    lights.push_back(newLight);
+    gameObject.push_back(GameObject{ "Light", vec3(0.0), vec3(1.0), vec3(0.0), newLight});
 }
 
 void App::Gui()
@@ -284,26 +284,18 @@ void App::Update()
     globalParamsOffset = lBuffer.head;
 
     PushVec3(lBuffer, camera.pos);
-    PushUInt(lBuffer, lights.size());
 
-    for (Light& light : lights)
+    for (GameObject& go : gameObject)
     {
-        AlignHead(lBuffer, sizeof(vec4));
-
-        PushUInt(lBuffer, light.type);
-        PushVec3(lBuffer, light.color);
-        PushVec3(lBuffer, light.direction);
-        PushVec3(lBuffer, light.pos);
+        go.Update(this);
+        go.HandleBuffer(&lBuffer);
     }
     globalParamsSize = lBuffer.head - globalParamsOffset;
     UnmapBuffer(lBuffer);
 
     MapBuffer(mBuffer, GL_WRITE_ONLY);
     for (GameObject& go : gameObject)
-    {
-        go.Update(this);
         go.HandleBuffer(uniformBlockAligment, &mBuffer);
-    }
     UnmapBuffer(mBuffer);
 }
 
@@ -352,27 +344,30 @@ void App::Render()
             Program& texturedMeshProgram = programs[texturedMeshProgramIdx];
             glUseProgram(texturedMeshProgram.handle);
 
-            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(0), lBuffer.head, globalParamsOffset, globalParamsSize);
+            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(0), lBuffer.handle, globalParamsOffset, globalParamsSize);
 
             for (GameObject& go : gameObject)
             {
-                Mesh mesh = go.GetMesh();
-                for (u32 i = 0; i < mesh.submeshes.size(); ++i)
+                if (go.IsType(ObjectType::Model))
                 {
-                    GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                    glBindVertexArray(vao);
+                    Mesh mesh = go.GetMesh();
 
-                    Material& submeshMaterial = materials[go.GetMesh().materialIdx[i]];
+                    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), mBuffer.handle, go.GetLocalOffset(), go.GetLocalSize());
+                    for (u32 i = 0; i < mesh.submeshes.size(); ++i)
+                    {
+                        GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
+                        glBindVertexArray(vao);
 
-                    glUniform1i(texturedMeshTexture, 0);
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
+                        Material& submeshMaterial = materials[go.GetMesh().materialIdx[i]];
 
-                    glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), mBuffer.head, go.GetLocalOffset(), go.GetLocalSize());
+                        glUniform1i(texturedMeshTexture, 0);
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
 
-                    Submesh& submesh = mesh.submeshes[i];
-                    glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                    glBindVertexArray(0);
+                        Submesh& submesh = mesh.submeshes[i];
+                        glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
+                        glBindVertexArray(0);
+                    }
                 }
             }
 

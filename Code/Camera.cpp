@@ -7,15 +7,15 @@ Camera::Camera()
 	projection = perspective(radians(60.0f), aspectRatio, zNear, zFar);
 
 	//Camera Position
-	pos = vec3(0.0f, 0.0f, -3.0f);
+	pos = vec3(-10.0f, 5.0f, -0.0f);
 	//Camera Direction
-	target = vec3(0.0f, 0.0f, 0.0f);
+	target = vec3(0.0f, 2.0f, 0.0f);
 	direction = normalize(pos - target);
 	//Right axis' camera
 	upVector = vec3(0.0f, 1.0f, 0.0f);
 	rightAxis = normalize(cross(upVector, direction));
 	//Up axis' camera
-	upAxis = cross(direction, rightAxis);
+	cameraForward = normalize(cross(upVector, rightAxis));
 }
 
 Camera::~Camera()
@@ -36,8 +36,8 @@ void Camera::Update(App* app)
 
 void Camera::ControlCamera(App* app)
 {
-	/*
-	float speed = 15.0f * app->deltaTime;
+	
+	float speed = 15.0f * app->dt();
 	if (app->input.keys[K_SPACE] == BUTTON_PRESSED) speed *= 2;
 
 	if (app->input.keys[K_W] == BUTTON_PRESSED)
@@ -49,7 +49,7 @@ void Camera::ControlCamera(App* app)
 	if (app->input.keys[K_D] == BUTTON_PRESSED)
 		pos += rightAxis * speed;
 
-
+		/*
 	// Auxiliar variables
 	vec3 newPos = pos;
 	vec3 newFront = rightAxis;

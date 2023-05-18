@@ -45,7 +45,6 @@ public:
     vector<Texture>     textures;
     vector<Material>    materials;
     vector<GameObject>  gameObject;
-    vector<Light>       lights;
     vector<Program>     programs;
     Camera              camera;
     Input               input;
