@@ -1,53 +1,6 @@
-﻿  BufferManager.cpp
+﻿  Engine.cpp
 C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
 C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(30): message : see declaration of 'App'
 C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
 C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
-  Camera.cpp
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(30): message : see declaration of 'App'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
-  Engine.cpp
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(30): message : see declaration of 'App'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
-  GameObject.cpp
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(30): message : see declaration of 'App'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
-  Importer.cpp
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(30): message : see declaration of 'App'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Importer.cpp(96,23): warning C4018: '<': signed/unsigned mismatch
-  Platform.cpp
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(30): message : see declaration of 'App'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(42,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(43,36): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(44,29): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Platform.cpp(45,29): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-  Generating Code...
   Engine.vcxproj -> C:\Users\raulci\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe

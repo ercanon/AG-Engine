@@ -105,7 +105,7 @@ void App::Init()
 
     lBuffer = CreateConstantBuffer(maxUniformBufferSize);
     mBuffer = CreateConstantBuffer(maxUniformBufferSize);
-    /*
+
     // FrameBuffer
     glGenTextures(1, &colorAttachmentHandle);
     glBindTexture(  GL_TEXTURE_2D, colorAttachmentHandle);
@@ -152,7 +152,7 @@ void App::Init()
 
     glDrawBuffers(1, &colorAttachmentHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, 6);
-    */
+
     // Geometry
     glGenBuffers(1, &embeddedVertices);
     glBindBuffer(GL_ARRAY_BUFFER, embeddedVertices);
@@ -177,11 +177,9 @@ void App::Init()
 
     texturedGeometryProgramIdx = LoadProgram(this, "shaders.glsl", "TEXTURED_GEOMETRY");
     Program& texturedGeometryProgram = programs[texturedGeometryProgramIdx];
-    programUniformTexture = glGetUniformLocation(texturedGeometryProgram.handle, "uTexture");
 
     texturedMeshProgramIdx = LoadProgram(this, "shaders.glsl", "TEXTURED_MESH");
     Program& texturedMeshProgram = programs[texturedMeshProgramIdx];
-    texturedMeshTexture = glGetUniformLocation(texturedMeshProgram.handle, "uTexture");
 
     diceTexIdx = LoadTexture2D(this, "dice.png");
     LoadTexture2D(this, "color_white.png");
@@ -194,8 +192,7 @@ void App::Init()
     Light newLight = { 
     LightType::Point,
     vec3 ( 1.0f, 0.0f, 0.0f ),
-    vec3 ( 0.0f, 0.0f, 0.0f ),
-    vec3 (0.0f, 0.0f, 0.0f) };
+    vec3 ( 0.0f, 0.0f, 0.0f )};
     gameObject.push_back(GameObject{ "Light", vec3(0.0), vec3(1.0), vec3(0.0), newLight});
 }
 
@@ -303,37 +300,12 @@ void App::Render()
 {
     switch (mode)
     {
-        case Mode_TexturedQuad:
-        {
-            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            glViewport(0, 0, displaySize.x, displaySize.y);
-
-            Program& programTexturedGeometry = programs[texturedGeometryProgramIdx];
-            glUseProgram(programTexturedGeometry.handle);
-            glBindVertexArray(vao);
-
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            glUniform1i(programUniformTexture, 0);
-            glActiveTexture(GL_TEXTURE0);
-            GLuint textureHandle = textures[diceTexIdx].handle;
-            glBindTexture(GL_TEXTURE_2D, textureHandle);
-
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(u16), GL_UNSIGNED_SHORT, 0);
-
-            glBindVertexArray(0);
-            glUseProgram(0);
-        }
-        break;
         case Mode::Mode_TexturedMesh:
         {
-            //glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
+            glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
 
-            //GLuint drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-            //glDrawBuffers(1, drawBuffers);
+            GLuint drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+            glDrawBuffers(1, drawBuffers);
 
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
             glEnable(GL_DEPTH_TEST);
@@ -360,7 +332,7 @@ void App::Render()
 
                         Material& submeshMaterial = materials[go.GetMesh().materialIdx[i]];
 
-                        glUniform1i(texturedMeshTexture, 0);
+                        glUniform1i(glGetUniformLocation(texturedMeshProgram.handle, "uTexture"), 0);
                         glActiveTexture(GL_TEXTURE0);
                         glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
 
@@ -370,9 +342,29 @@ void App::Render()
                     }
                 }
             }
+        }
+        case Mode_TexturedQuad:
+        {
+            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            glViewport(0, 0, displaySize.x, displaySize.y);
+
+            Program& programTexturedGeometry = programs[texturedGeometryProgramIdx];
+            glUseProgram(programTexturedGeometry.handle);
+            glBindVertexArray(vao);
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            glUniform1i(glGetUniformLocation(programTexturedGeometry.handle, "uTexture"), 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, colorAttachmentHandle);
+
+            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(u16), GL_UNSIGNED_SHORT, 0);
+
+            glBindVertexArray(0);
             glUseProgram(0);
-            //glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
         }
         break;
         default:;

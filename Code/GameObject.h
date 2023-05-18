@@ -20,7 +20,6 @@ struct Light
 	LightType type;
 	vec3	  color;
 	vec3	  direction;
-	vec3	  pos;
 };
 
 class GameObject

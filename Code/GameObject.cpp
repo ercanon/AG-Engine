@@ -57,7 +57,7 @@ void GameObject::HandleBuffer(Buffer* buffer)
     PushUInt(*buffer, light.type);
     PushVec3(*buffer, light.color);
     PushVec3(*buffer, light.direction);
-    PushVec3(*buffer, light.pos);
+    PushVec3(*buffer, pos);
 }
 
 mat4 GameObject::TransformScale(const vec3& scaleFactors)

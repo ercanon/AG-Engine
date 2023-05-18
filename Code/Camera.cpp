@@ -12,10 +12,10 @@ Camera::Camera()
 	target = vec3(0.0f, 2.0f, 0.0f);
 	direction = normalize(pos - target);
 	//Right axis' camera
-	upVector = vec3(0.0f, 1.0f, 0.0f);
-	rightAxis = normalize(cross(upVector, direction));
+	upAxis = vec3(0.0f, 1.0f, 0.0f);
+	rightAxis = normalize(cross(upAxis, direction));
 	//Up axis' camera
-	cameraForward = normalize(cross(upVector, rightAxis));
+	forwardAxis = normalize(cross(upAxis, rightAxis));
 }
 
 Camera::~Camera()
@@ -29,7 +29,7 @@ void Camera::Update(App* app)
 
 	projection = perspective(radians(60.0f), aspectRatio, zNear, zFar);
 
-	view = lookAt(pos, target, upVector);
+	view = lookAt(pos, target, upAxis);
 
 	ControlCamera(app);
 }
