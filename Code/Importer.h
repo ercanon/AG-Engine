@@ -45,10 +45,10 @@ struct VertexV3V2
 };
 const VertexV3V2 vertices[] =
 {
-	{vec3(-0.5, -0.5,  0.0),   vec2(0.0, 0.0)},   // Bottom-Left Vertex
-	{vec3(0.5, -0.5,  0.0),    vec2(1.0, 0.0)},   // Bottom-Right Vertex
-	{vec3(0.5,  0.5,  0.0),    vec2(1.0, 1.0)},   // Top-Right Vertex
-	{vec3(-0.5,  0.5,  0.0),   vec2(0.0, 1.0)},   // Top-Left Vertex
+	{vec3(-1, -1,  0.0),   vec2(0.0, 0.0)},   // Bottom-Left Vertex
+	{vec3( 1, -1,  0.0),   vec2(1.0, 0.0)},   // Bottom-Right Vertex
+	{vec3( 1,  1,  0.0),   vec2(1.0, 1.0)},   // Top-Right Vertex
+	{vec3(-1,  1,  0.0),   vec2(0.0, 1.0)},   // Top-Left Vertex
 };
 const u16 indices[] =
 {
