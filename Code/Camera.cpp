@@ -9,7 +9,7 @@ Camera::Camera()
 	pos = vec3(0.0f, 0.0f, 0.0f);
 
 	//Camera Direction
-	target = vec3(0.0f, 0.0f, 1.0f);
+	target = vec3(0.0f, 0.0f, -1.0f);
 	direction = normalize(pos - target);
 
 	//Right axis' camera
@@ -28,7 +28,7 @@ void Camera::Update(App* app)
 	ivec2 displaySize = app->dispSize();
 	aspectRatio = (float)displaySize.x / (float)displaySize.y;
 
-	if (app->input.keys[K_F] == BUTTON_PRESSED)
+	if (app->input.keys[Key::K_F] == BUTTON_PRESSED)
 	{
 		GameObject* goSelect = app->GetGameObject();
 		if (goSelect != nullptr)
@@ -44,19 +44,19 @@ void Camera::Update(App* app)
 void Camera::ControlCamera(App* app)
 {
 	float speed = 15.0f * app->dt();
-	if (app->input.keys[K_CONTROL] == BUTTON_PRESSED) speed *= 2;
+	if (app->input.keys[Key::K_CONTROL] == BUTTON_PRESSED) speed *= 2;
 
-	if (app->input.keys[K_W] == BUTTON_PRESSED)
+	if (app->input.keys[Key::K_W] == BUTTON_PRESSED)
 		pos += forwardAxis * speed;
-	if (app->input.keys[K_S] == BUTTON_PRESSED)
+	if (app->input.keys[Key::K_S] == BUTTON_PRESSED)
 		pos -= forwardAxis * speed;
-	if (app->input.keys[K_A] == BUTTON_PRESSED)
+	if (app->input.keys[Key::K_A] == BUTTON_PRESSED)
 		pos -= rightAxis * speed;
-	if (app->input.keys[K_D] == BUTTON_PRESSED)
+	if (app->input.keys[Key::K_D] == BUTTON_PRESSED)
 		pos += rightAxis * speed;
-	if (app->input.keys[K_Q] == BUTTON_PRESSED)
+	if (app->input.keys[Key::K_Q] == BUTTON_PRESSED)
 		pos -= upAxis * speed;
-	if (app->input.keys[K_E] == BUTTON_PRESSED)
+	if (app->input.keys[Key::K_E] == BUTTON_PRESSED)
 		pos += upAxis * speed;
 }
 /*

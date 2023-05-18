@@ -117,7 +117,6 @@ void OnGlfwResizeFramebuffer(GLFWwindow* window, int width, int height)
 void OnGlfwCloseWindow(GLFWwindow* window)
 {
     App* app = (App*)glfwGetWindowUserPointer(window);
-    app->IsRunning(false);
 }
 
 int main()

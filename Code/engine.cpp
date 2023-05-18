@@ -264,13 +264,24 @@ void App::Init()
     LoadTexture2D(this, "color_normal.png");
     LoadTexture2D(this, "color_magenta.png");
     LoadModel(this, "Patrick/Patrick.obj");
+    LoadModel(this, "Patrick/Patrick.obj");
+    gameObject.back().objPos.x += 5.0f;
+    LoadModel(this, "Patrick/Patrick.obj");
+    gameObject.back().objPos.x -= 5.0f;
 
-    Light newLight = { 
+    Light pointLight = { 
     LightType::Point,
     vec3 ( 1.0f, 1.0f, 1.0f ),
-    vec3(1.0f, 1.0f, 1.0f)};
+    vec3 (1.0f, 1.0f, 1.0f)};
     lightSize++;
-    gameObject.push_back(GameObject{ "Point Light", vec3(0.0f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), newLight});
+    gameObject.push_back(GameObject{ "Point Light", vec3(-1.0f, 0.5f, -9.0f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), pointLight });
+
+    Light directLight = {
+    LightType::Directional,
+    vec3(1.0f, 1.0f, 1.0f),
+    vec3(1.0f, 1.0f, 1.0f) };
+    lightSize++;
+    gameObject.push_back(GameObject{ "Directional Light", vec3(0.0f, 0.0f, -15.0f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), directLight });
 }
 
 void App::Gui()
@@ -304,8 +315,8 @@ void App::Gui()
     ImGui::End();
 
     ImGui::Begin("Hierarchy");
-    if (input.keys[Key::K_M] == ButtonState::BUTTON_PRESSED && pickedGO != nullptr)
-        delete pickedGO;
+    if (input.keys[Key::K_P] == ButtonState::BUTTON_PRESSED && pickedGO != nullptr);
+        // Aqui borras el objeto pero el vector es una putisima mierda
     for (GameObject& go : gameObject)
     {
         if (ImGui::TreeNodeEx(go.objName.c_str(), ImGuiTreeNodeFlags_Leaf))
@@ -357,7 +368,7 @@ void App::Gui()
                 ImGui::Spacing();
                 if (ImGui::Button("Reset", ImVec2(ImGui::GetWindowSize().x - 15, 20)))
                 {
-                    pickedGO->objPos = vec3(0.0f, 0.0f, 10.0f);
+                    pickedGO->objPos = vec3(0.0f, 0.0f, -10.0f);
                     pickedGO->objRot = vec3(0.0f);
                     pickedGO->objScale = vec3(1.0f);
                 }
@@ -418,10 +429,24 @@ void App::Gui()
 
         ImGui::EndPopup();
     };
+
+    ImGui::Begin("Controles");
+    ImGui::Text("AWSD para mover");
+    ImGui::Text("QE para la altura de la camara");
+    ImGui::Text("CONTROL para mayor velocidad de camara");
+    ImGui::Text("DOBLE CLICK IZQUIERDO en Hierarchy para seleccionar GameObject");
+    ImGui::Text("Con GameObject seleccionado, F para centrar");
+    //ImGui::Text("Con GameObject seleccionado, P para eliminar GameObject");
+    ImGui::Text("ENTER para cerrar la aplicacion");
+    ImGui::Text("F1 para informacion OpenGL");
+    ImGui::End();
 }
 
 void App::Update()
 {
+    if (input.keys[Key::K_ENTER] == ButtonState::BUTTON_PRESSED)
+        isRunning = false;
+
     for (Program& program : programs)
     {
         u64 currentTimestamp = GetFileLastWriteTimestamp(program.filepath.c_str());
