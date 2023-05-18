@@ -225,7 +225,7 @@ void App::Init()
     }
 
     glDrawBuffers(1, &frameBuffer.colorAttachment);
-    glBindFramebuffer(GL_FRAMEBUFFER, 6);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // Geometry
     glGenBuffers(1, &embeddedVertices);
