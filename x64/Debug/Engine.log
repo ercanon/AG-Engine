@@ -1,6 +1,6 @@
 ﻿  Engine.cpp
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(30): message : see declaration of 'App'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
-C:\Users\raulci\Documents\GitHub\Deferred-Rendering\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
-  Engine.vcxproj -> C:\Users\raulci\Documents\GitHub\Deferred-Rendering\x64\Debug\Engine.exe
+C:\Users\raulci\Documents\GitHub\AG-Engine\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
+C:\Users\raulci\Documents\GitHub\AG-Engine\Code\Engine.h(30): message : see declaration of 'App'
+C:\Users\raulci\Documents\GitHub\AG-Engine\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
+C:\Users\raulci\Documents\GitHub\AG-Engine\Code\Engine.h(40,60): warning C4806: '!=': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
+  Engine.vcxproj -> C:\Users\raulci\Documents\GitHub\AG-Engine\x64\Debug\Engine.exe

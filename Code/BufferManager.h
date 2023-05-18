@@ -21,6 +21,15 @@ struct Buffer
     void* data;
 };
 
+struct FrameBuffer
+{
+    GLuint colorAttachmentHandle;
+    GLuint depthAttachmentHandle;
+    GLuint frameBufferHandle;
+    GLuint normalAttachment;
+    GLuint positionAttachment;
+};
+
 bool IsPowerOf2(u32 value);
 
 u32 Align(u32 value, u32 alignment);
