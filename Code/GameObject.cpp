@@ -1,5 +1,18 @@
 #include "Engine.h"
 
+GameObject::GameObject()
+{
+    objType = ObjectType::Empty;
+    objName = "Empty GameObject";
+
+    //General
+    objPos = vec3(0.0f);
+    objScale = vec3(1.0f);
+    objRot = vec3(0.0f);
+
+    localParamsOffset = 0;
+    localParamSize = 0;
+}
 
 GameObject::GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Mesh mesh)
 {
@@ -9,9 +22,9 @@ GameObject::GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Me
     objMesh = mesh;
 
     //General
-    pos = position;
-    scl = scale;
-    rot = rotation;
+    objPos = position;
+    objScale = scale;
+    objRot = rotation;
 
     localParamsOffset = 0;
     localParamSize = 0;
@@ -25,9 +38,9 @@ GameObject::GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Li
     light = newLight;
 
     //General
-    pos = position;
-    scl = scale;
-    rot = rotation;
+    objPos = position;
+    objScale = scale;
+    objRot = rotation;
 
     localParamsOffset = 0;
     localParamSize = 0;
@@ -35,7 +48,7 @@ GameObject::GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Li
 
 void GameObject::Update(App* app)
 {
-    worldMatrix = TransformPositionScale(pos, scl);
+    worldMatrix = TransformPositionScale(objPos, objScale);
     worldViewProjection = app->camera.projection * app->camera.view * translate(worldMatrix, vec3(1.0f, 1.0f, 0.0f));
 }
 
@@ -57,7 +70,7 @@ void GameObject::HandleBuffer(Buffer* buffer)
     PushUInt(*buffer, light.type);
     PushVec3(*buffer, light.color);
     PushVec3(*buffer, light.direction);
-    PushVec3(*buffer, pos);
+    PushVec3(*buffer, objPos);
 }
 
 mat4 GameObject::TransformScale(const vec3& scaleFactors)

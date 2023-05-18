@@ -18,7 +18,7 @@ public:
 	vec3 target;
 	vec3 direction;
 
-	vec3 upAxis;
+	const vec3 upAxis = vec3(0.0f, 1.0f, 0.0f);;
 	vec3 forwardAxis;
 	vec3 rightAxis;
 

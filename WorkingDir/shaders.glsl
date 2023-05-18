@@ -55,7 +55,7 @@
 	layout (binding = 0, std140) uniform GlobalParams
 	{
 		vec3		 uCameraPosition;
-		//unsigned int uLightCount;
+		unsigned int uLightCount;
 		Light		 uLight[16];
 	};
 
@@ -93,15 +93,39 @@
 	layout (binding = 0, std140) uniform GlobalParams
 	{
 		vec3		 uCameraPosition;
-		//unsigned int uLightCount;
+		unsigned int uLightCount;
 		Light		 uLight[16];
 	};
 	
 	layout(location = 0) out vec4 oColor;
+	layout(location = 1) out vec4 oNormals;
+	layout(location = 2) out vec4 oPosition;
 	
 	void main()
 	{
-		oColor = texture(uTexture, vTexCoord);
+		vec3 lightStrenght = vec3(0.0);
+		for(int i = 0; i< uLightCount; ++i)
+		{
+		    float ambientStrenght = 0.2;
+		    vec3 ambient = ambientStrenght * uLight[i].color;
+		    
+		    float diff = max(dot(normalize(vNormal), normalize(uLight[i].direction)), 0.0);
+
+		    vec3 diffuse = diff * uLight[i].color;
+
+		    float specularStrength = 0.5;
+
+		    vec3 reflectDir = reflect(normalize(-uLight[i].direction), normalize(vNormal));
+
+		    float spec = pow(max(dot(normalize(vViewDir), reflectDir), 0.0), 32);
+		    vec3 specular = specularStrength * spec * uLight[i].color;
+
+		    lightStrenght += (ambient + diffuse + specular) * texture(uTexture, vTexCoord).rgb;
+		}
+		oColor = vec4(lightStrenght, 1.0);
+		oNormals = vec4(normalize(vNormal),1.0);
+		oPosition = vec4(vPosition,1.0);
+		//oColor = vec4(uLight[0].color, 1.0);
 	}
 	#endif
 #endif

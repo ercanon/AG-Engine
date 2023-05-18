@@ -7,20 +7,64 @@
 
 #include "Engine.h"
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
 
 
-ImGuiTreeNodeFlags SetFlags(Mesh node)
+bool DrawVec3(const char* name, vec3& vec)
 {
-    // This flags allow to open the tree if you click on arrow or doubleClick on object, by default the tree is open  
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+    vec3 lastVec = vec;
+    ImGui::PushID(name);
 
-    // If GameObject doesn't childrens = no collapsing and no arrow
-    if (node.submeshes.size() == 0)
-        flags |= ImGuiTreeNodeFlags_Leaf;
+    ImGui::Columns(2);
+    ImGui::SetColumnWidth(0, 100.0f);
+    ImGui::Text(name);
+    ImGui::NextColumn();
 
+    ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 0,0 });
 
-    return flags;
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.1f, 0.15f, 1.0f));
+    ImGui::Button("X");
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    ImGui::DragFloat("##X", &vec.x, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.7f, 0.2f, 1.0f));
+    ImGui::Button("Y");
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    ImGui::DragFloat("##Y", &vec.y, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.25f, 0.8f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.25f, 0.8f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.1f, 0.25f, 0.8f, 1.0f));
+    ImGui::Button("Z");
+    ImGui::PopStyleColor(3);
+
+    ImGui::SameLine();
+    ImGui::DragFloat("##Z", &vec.z, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::PopItemWidth();
+
+    ImGui::PopStyleVar();
+
+    ImGui::Columns(1);
+
+    ImGui::PopID();
+
+    if (lastVec.x != vec.x || lastVec.y != vec.y || lastVec.z != vec.z)
+        return true;
+    else return false;
 }
 
 GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
@@ -81,6 +125,9 @@ App::App(f32 dt, ivec2 dispSize, bool running)
     deltaTime = dt;
     displaySize = dispSize;
     isRunning = running;
+
+    lightSize = 0;
+    pickedGO = nullptr;
 }
 
 void App::Init()
@@ -113,6 +160,7 @@ void App::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE); 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(   GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x, displaySize.y, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindTexture(  GL_TEXTURE_2D, 0);
     
     glGenTextures(1, &frameBuffer.normalAttachment);
@@ -123,6 +171,7 @@ void App::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(   GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x, displaySize.y, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindTexture(  GL_TEXTURE_2D, 0);
 
     glGenTextures(1, &frameBuffer.positionAttachment);
@@ -133,6 +182,7 @@ void App::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(   GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x, displaySize.y, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindTexture(  GL_TEXTURE_2D, 0);
 
     glGenTextures(1, &frameBuffer.depthAttachmentHandle);
@@ -143,6 +193,7 @@ void App::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(   GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x, displaySize.y, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindTexture(  GL_TEXTURE_2D, 0);
     
     glGenFramebuffers(1, &frameBuffer.frameBufferHandle);
@@ -203,18 +254,18 @@ void App::Init()
     texturedMeshProgramIdx = LoadProgram(this, "shaders.glsl", "TEXTURED_MESH");
     Program& texturedMeshProgram = programs[texturedMeshProgramIdx];
 
-    diceTexIdx = LoadTexture2D(this, "dice.png");
+    LoadTexture2D(this, "dice.png");
     LoadTexture2D(this, "color_white.png");
     LoadTexture2D(this, "color_black.png");
     LoadTexture2D(this, "color_normal.png");
     LoadTexture2D(this, "color_magenta.png");
-    LoadModel(this, "Patrick/Patrick.obj");
     LoadModel(this, "Patrick/Patrick.obj");
 
     Light newLight = { 
     LightType::Point,
     vec3 ( 1.0f, 0.0f, 0.0f ),
     vec3 ( 0.0f, 0.0f, 0.0f )};
+    lightSize++;
     gameObject.push_back(GameObject{ "Light", vec3(0.0), vec3(1.0), vec3(0.0), newLight});
 }
 
@@ -223,40 +274,56 @@ void App::Gui()
     ImGui::Begin("Hierarchy");
     for (GameObject& go : gameObject)
     {
-        if (ImGui::IsMouseReleased(0) && ImGui::IsItemHovered())
-            goPicked(&go);
-
-        if (ImGui::TreeNodeEx(go.GetName().c_str(), SetFlags(go.GetMesh())))
+        if (ImGui::TreeNodeEx(go.objName.c_str(), ImGuiTreeNodeFlags_Leaf))
         {
-            int size = go.GetMesh().submeshes.size();
-            for (int i = 0; i < size; ++i)
-            {
-                string subName = "Submesh " + to_string(i);
-                if (ImGui::TreeNodeEx(subName.c_str(), ImGuiTreeNodeFlags_Leaf))
-                    ImGui::TreePop();
-            }
+            if (ImGui::IsMouseDoubleClicked(0) && ImGui::IsItemHovered())
+                pickedGO = &go;
             ImGui::TreePop();
         }
     }
 
-    if (ImGui::IsWindowHovered() && ImGui::IsWindowFocused() && (ImGui::GetIO().MouseClicked[0] || ImGui::GetIO().MouseClicked[1]))
-        goPicked(nullptr);
+    if (ImGui::IsWindowHovered() && (ImGui::GetIO().MouseClicked[0] || ImGui::GetIO().MouseClicked[1]))
+        pickedGO = nullptr;
     ImGui::End();
 
-    ImGui::Begin("Inspector");
-    if (goPicked() != nullptr)
+   
+    if (pickedGO != nullptr)
     {
-        //if (item == ItemType::NONE)
-        //{
-        //    DrawDefaultInspector(obj);
-        //    obj->DrawEditor();
-        //}
-        //else
-        //{
-        //    DrawEditLists();
-        //}
+        ImGui::Begin("Inspector");
+        
+        ImGui::Text("Name");
+        ImGui::SameLine();
+        ImGui::InputText("##Name", &pickedGO->objName[0], 30);
+
+        ImGui::Separator();
+        if (ImGui::CollapsingHeader("Transform"))
+        {
+            ImGui::PushItemWidth(90);
+
+            DrawVec3("Position: ", pickedGO->objPos);
+            DrawVec3("Rotation: ", pickedGO->objRot);
+            /*
+            rotationInEuler.x = RADTODEG * rotationEditor.x;
+            rotationInEuler.y = RADTODEG * rotationEditor.y;
+            rotationInEuler.z = RADTODEG * rotationEditor.z;
+            if (DrawVec3("Rotation: ", rotationInEuler))
+            {
+                rotationInEuler.x = DEGTORAD * rotationInEuler.x;
+                rotationInEuler.y = DEGTORAD * rotationInEuler.y;
+                rotationInEuler.z = DEGTORAD * rotationInEuler.z;
+
+                mat4 rotationDelta = mat4::FromEulerXYZ(rotationInEuler.x - rotationEditor.x, rotationInEuler.y - rotationEditor.y, rotationInEuler.z - rotationEditor.z);
+                rotation = rotation * rotationDelta;
+                rotationEditor = rotationInEuler;
+            }
+            */
+            DrawVec3("Scale: ", pickedGO->objScale);
+
+            ImGui::Separator();
+        }
+
+        ImGui::End();
     }
-    ImGui::End();
 
     if (input.keys[Key::K_F12] == ButtonState::BUTTON_PRESSED)
         ImGui::OpenPopup("OpenGL Info");
@@ -303,6 +370,7 @@ void App::Update()
     globalParamsOffset = lBuffer.head;
 
     PushVec3(lBuffer, camera.pos);
+    PushUInt(lBuffer, lightSize);
 
     for (GameObject& go : gameObject)
     {
@@ -370,20 +438,21 @@ void App::Render()
         case Mode_TexturedQuad:
         {
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glEnable(GL_DEPTH_TEST);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            Program& programTexturedGeometry = programs[texturedGeometryProgramIdx];
-            glUseProgram(programTexturedGeometry.handle);
+            Program& texturedGeomProgram = programs[texturedGeometryProgramIdx];
+            glUseProgram(texturedGeomProgram.handle);
             glBindVertexArray(vao);
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            glUniform1i(glGetUniformLocation(programTexturedGeometry.handle, "uTexture"), 0);
+            glUniform1i(glGetUniformLocation(texturedGeomProgram.handle, "uTexture"), 0);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, frameBuffer.normalAttachment);
 
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(u16), GL_UNSIGNED_SHORT, 0);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
             glBindVertexArray(0);
             glUseProgram(0);

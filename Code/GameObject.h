@@ -6,7 +6,8 @@ struct Buffer;
 enum ObjectType
 {
 	Model,
-	Lightning
+	Lightning,
+	Empty
 };
 
 enum LightType
@@ -25,6 +26,7 @@ struct Light
 class GameObject
 {
 public:
+	GameObject();
 	GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Mesh mesh);
 	GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Light newLight);
 	virtual ~GameObject() {};
@@ -40,16 +42,16 @@ public:
 	virtual Mesh GetMesh() { return objMesh; }
 	virtual u32 GetLocalOffset() { return localParamsOffset; }
 	virtual u32 GetLocalSize() { return localParamSize; }
-	virtual string GetName() { return objName; }
+
 	virtual bool IsType(ObjectType type) { return type == objType; }
 
+	string objName;
+	vec3 objPos;
+	vec3 objScale;
+	vec3 objRot;
 private:
 	//General
-	string objName;
 	ObjectType objType;
-	vec3 pos;
-	vec3 scl;
-	vec3 rot;
 
 	mat4 worldMatrix;
 	mat4 worldViewProjection;

@@ -1,4 +1,4 @@
-﻿  Engine.cpp
+﻿  GameObject.cpp
 C:\Users\raulci\Documents\GitHub\AG-Engine\Code\Engine.h(31,1): warning C4099: 'App': type name first seen using 'struct' now seen using 'class'
 C:\Users\raulci\Documents\GitHub\AG-Engine\Code\Engine.h(30): message : see declaration of 'App'
 C:\Users\raulci\Documents\GitHub\AG-Engine\Code\Engine.h(40,37): warning C4305: 'default argument': truncation from 'int' to 'bool'
