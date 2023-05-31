@@ -52,31 +52,31 @@ void GameObject::Update(App* app)
     worldViewProjection = app->camera.projection * app->camera.view * translate(worldMatrix, vec3(1.0f, 1.0f, 0.0f));
 }
 
-void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer* buffer)
+void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer& buffer)
 {
     if (objType == ObjectType::Model)
     {
         AlignHead(*buffer, uniformBlockAligment);
 
-        localParamsOffset = buffer->head;
+        localParamsOffset = buffer.head;
 
-        PushMat4(*buffer, worldMatrix);
-        PushMat4(*buffer, worldViewProjection);
+        PushMat4(buffer, worldMatrix);
+        PushMat4(buffer, worldViewProjection);
 
-        localParamSize = buffer->head - localParamsOffset;
+        localParamSize = buffer.head - localParamsOffset;
     }
 }
-void GameObject::HandleBuffer(Buffer* buffer)
+void GameObject::HandleBuffer(Buffer& buffer)
 {
     if (objType == ObjectType::Lightning)
     {
         AlignHead(*buffer, sizeof(vec4));
 
-        PushUInt(*buffer, light.type);
-        PushVec3(*buffer, light.color);
-        PushVec3(*buffer, light.direction);
-        PushVec3(*buffer, objPos);
-        PushVec3(*buffer, objScale);
+        PushUInt(buffer, light.type);
+        PushVec3(buffer, light.color);
+        PushVec3(buffer, light.direction);
+        PushVec3(buffer, objPos);
+        PushVec3(buffer, objScale);
     }
 }
 

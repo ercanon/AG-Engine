@@ -31,8 +31,8 @@ public:
 	GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Light newLight);
 	virtual ~GameObject() {};
 	void Update(App* app);
-	void HandleBuffer(GLint uniformBlockAligment, Buffer* buffer);
-	void HandleBuffer(Buffer* buffer);
+	void HandleBuffer(GLint uniformBlockAligment, Buffer& buffer);
+	void HandleBuffer(Buffer& buffer);
 
 	mat4 TransformScale(const vec3& scaleFactors);
 	mat4 TransformPositionScale(const vec3& pos, const vec3& scaleFactors);
@@ -50,6 +50,7 @@ public:
 	vec3 objPos;
 	vec3 objScale;
 	vec3 objRot;
+
 private:
 	//General
 	ObjectType objType;

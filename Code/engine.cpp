@@ -128,10 +128,7 @@ App::App(f32 dt, ivec2 dispSize, bool running)
 
     lightSize = 0;
     pickedGO = nullptr;
-    frameBuffer.color    = true;
-    frameBuffer.normal   = true;
-    frameBuffer.position = true;
-    frameBuffer.depth    = true;
+    frameBuffer = FrameBuffer{};
 }
 
 void App::Init()
@@ -147,7 +144,7 @@ void App::Init()
     for (GLint i = 0; i < numExtensions; ++i)
         glInfo.glExtensions.push_back(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, GLuint(i))));
 
-    // Uniform Buffer
+    /* --------------------- Uniform Buffer --------------------- */
     GLint maxUniformBufferSize;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUniformBufferSize);
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBlockAligment);
@@ -155,7 +152,7 @@ void App::Init()
     lBuffer = CreateConstantBuffer(maxUniformBufferSize);
     mBuffer = CreateConstantBuffer(maxUniformBufferSize);
 
-    // FrameBuffer
+    /* --------------------- FrameBuffer --------------------- */
     glGenTextures(1, &frameBuffer.colorAttachment);
     glBindTexture(  GL_TEXTURE_2D, frameBuffer.colorAttachment);
     glTexImage2D(   GL_TEXTURE_2D, 0, GL_RGBA8, displaySize.x, displaySize.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -227,7 +224,7 @@ void App::Init()
     glDrawBuffers(1, &frameBuffer.colorAttachment);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Geometry
+    /* --------------------- Geometry --------------------- */
     glGenBuffers(1, &embeddedVertices);
     glBindBuffer(GL_ARRAY_BUFFER, embeddedVertices);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -238,7 +235,7 @@ void App::Init()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    // Attribute state
+    /* --------------------- Attribute state --------------------- */
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, embeddedVertices);
@@ -249,7 +246,44 @@ void App::Init()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, embeddedElements);
     glBindVertexArray(0);
 
+    /* --------------------- Bloom --------------------- */
+    if (bloom.rtBright != 0)
+        glDeleteTextures(1, &bloom.rtBright);
+    glGenTextures(1, &bloom.rtBright);
+    glBindTexture(GL_TEXTURE_2D, bloom.rtBright);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MIPMAP_BASE_LEVEL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, MIPMAP_MAX_LEVEL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x/2, displaySize.y/2, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, displaySize.x/4, displaySize.y/4, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x/8, displaySize.y/8, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x/16, displaySize.y/16, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x/32, displaySize.y/32, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
+    if (bloom.rtBloomH != 0)
+        glDeleteTextures(1, &bloom.rtBloomH);
+    glGenTextures(1, &bloom.rtBloomH);
+    glBindTexture(GL_TEXTURE_2D, bloom.rtBloomH);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MIPMAP_BASE_LEVEL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, MIPMAP_MAX_LEVEL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x / 2, displaySize.y / 2, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, displaySize.x / 4, displaySize.y / 4, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x / 8, displaySize.y / 8, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x / 16, displaySize.y / 16, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x / 32, displaySize.y / 32, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    
+
+
+    /* --------------------- Init Engine --------------------- */
     mode = Mode_TexturedMesh;
 
     texturedGeometryProgramIdx = LoadProgram(this, "shaders.glsl", "TEXTURED_GEOMETRY");
@@ -472,14 +506,14 @@ void App::Update()
     for (GameObject& go : gameObject)
     {
         go.Update(this);
-        go.HandleBuffer(&lBuffer);
+        go.HandleBuffer(lBuffer);
     }
     globalParamsSize = lBuffer.head - globalParamsOffset;
     UnmapBuffer(lBuffer);
 
     MapBuffer(mBuffer, GL_WRITE_ONLY);
     for (GameObject& go : gameObject)
-        go.HandleBuffer(uniformBlockAligment, &mBuffer);
+        go.HandleBuffer(uniformBlockAligment, mBuffer);
     UnmapBuffer(mBuffer);
 }
 

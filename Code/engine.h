@@ -10,6 +10,9 @@
 #include "GameObject.h"
 #include "BufferManager.h"
 
+#define MIPMAP_BASE_LEVEL 0
+#define MIPMAP_MAX_LEVEL 4
+
 
 struct OpenGLInfo
 {
@@ -83,6 +86,7 @@ private:
     u32 globalParamsSize;
 
     FrameBuffer frameBuffer;
+    Bloom bloom;
 
     // Embedded geometry (in-editor simple meshes such as
     // a screen filling quad, a cube, a sphere...)
