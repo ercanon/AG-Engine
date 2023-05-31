@@ -420,7 +420,7 @@ u32 LoadModel(App* app, const char* filename)
         indicesOffset += indicesSize;
     }
 
-    app->gameObject.push_back(GameObject{ directory.str, vec3(0.0f, 0.0f, -10.0f), vec3(1.0f), vec3(0.0f), mesh });
+    app->gameObject.push_back(GameObject{ directory.str, vec3(0.0f, 0.0f, 0.0f), vec3(1.0f), vec3(0.0f), mesh });
     GameObject& go = app->gameObject.back();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

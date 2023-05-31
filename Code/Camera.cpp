@@ -9,14 +9,15 @@ Camera::Camera()
 	pos = vec3(0.0f, 0.0f, 0.0f);
 
 	//Camera Direction
-	target = vec3(0.0f, 0.0f, -1.0f);
+	target = vec3(1.0f, 0.0f, 0.0f);
 	direction = normalize(pos - target);
 
 	//Right axis' camera
-	rightAxis = normalize(cross(upAxis, direction));
-
+	rightCamera = normalize(cross(upAxis, direction));
+	//Forward axis' camera
+	forwardCamera = normalize(cross(upAxis, rightCamera));
 	//Up axis' camera
-	forwardAxis = normalize(cross(upAxis, rightAxis));
+	upCamera = normalize(cross(direction, rightCamera));
 }
 
 Camera::~Camera()
@@ -32,11 +33,14 @@ void Camera::Update(App* app)
 	{
 		GameObject* goSelect = app->GetGameObject();
 		if (goSelect != nullptr)
+		{
 			target = goSelect->objPos;
+			direction = normalize(pos - target);
+		}
 	}
 
 	projection = perspective(radians(60.0f), aspectRatio, zNear, zFar);
-	view = lookAt(pos, target, upAxis);
+	view = lookAt(pos, target, upCamera);
 
 	ControlCamera(app);
 }
@@ -47,17 +51,17 @@ void Camera::ControlCamera(App* app)
 	if (app->input.keys[Key::K_CONTROL] == BUTTON_PRESSED) speed *= 2;
 
 	if (app->input.keys[Key::K_W] == BUTTON_PRESSED)
-		pos += forwardAxis * speed;
+		pos += forwardCamera * speed;
 	if (app->input.keys[Key::K_S] == BUTTON_PRESSED)
-		pos -= forwardAxis * speed;
+		pos -= forwardCamera * speed;
 	if (app->input.keys[Key::K_A] == BUTTON_PRESSED)
-		pos -= rightAxis * speed;
+		pos -= rightCamera * speed;
 	if (app->input.keys[Key::K_D] == BUTTON_PRESSED)
-		pos += rightAxis * speed;
+		pos += rightCamera * speed;
 	if (app->input.keys[Key::K_Q] == BUTTON_PRESSED)
-		pos -= upAxis * speed;
+		pos -= upCamera * speed;
 	if (app->input.keys[Key::K_E] == BUTTON_PRESSED)
-		pos += upAxis * speed;
+		pos += upCamera * speed;
 }
 /*
 void Camera::RotateAround(float dt, vec3& newFront, vec3& newUp)
