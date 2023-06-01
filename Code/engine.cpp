@@ -342,7 +342,7 @@ void App::Init()
     vec3 ( 1.0f, 1.0f, 1.0f ),
     vec3 (1.0f, 1.0f, 1.0f)};
     lightSize++;
-    gameObject.push_back(GameObject{ "Point Light", vec3(-1.0f, 0.5f, -9.0f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), pointLight });
+    gameObject.push_back(GameObject{ "Point Light", vec3(-1.2f, 0.5f, 0.7f), vec3(0.2f, 1.0f, 0.5f), vec3(0.0f), pointLight });
 
     Light directLight = {
     LightType::Directional,
@@ -652,7 +652,7 @@ void App::Render()
             }
 
             {
-                glBindFramebuffer(GL_FRAMEBUFFER, bloom.fboBloom[0].frameBufferHandle);
+                glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.frameBufferHandle);
 
                 glDrawBuffer(GL_COLOR_ATTACHMENT3);
                 glViewport(0, 0, displaySize.x, displaySize.y);

@@ -158,6 +158,8 @@
 
 
 #ifdef BLIT
+#version 330 core
+
 	uniform sampler2D uColorTexture;
 	uniform float uThreshold;
 
@@ -220,6 +222,8 @@
 #endif
 
 #ifdef BLOOM
+#version 330 core
+
 	uniform sampler2D uColorMap;
 	uniform int uMaxLod;
 
