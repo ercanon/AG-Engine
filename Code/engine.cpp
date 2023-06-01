@@ -135,31 +135,20 @@ void App::PassBlur(FrameBuffer fb, const ivec2 &view, GLenum colorAttach, GLuint
     glUniform1i(glGetUniformLocation(blurProgram.handle, "uColorMap"), 0);
     glUniform2f(glGetUniformLocation(blurProgram.handle, "uDirection"), direction.x, direction.y);
     glUniform1i(glGetUniformLocation(blurProgram.handle, "uInputLod"), inputLod);
-    /*
+    
     for (GameObject& go : gameObject)
     {
         if (go.IsType(ObjectType::Model))
         {
-            glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), mBuffer.handle, go.GetLocalOffset(), go.GetLocalSize());
             Mesh mesh = go.GetMesh();
             for (u32 i = 0; i < mesh.submeshes.size(); ++i)
             {
-                GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                glBindVertexArray(vao);
-
-                Material& submeshMaterial = materials[go.GetMesh().materialIdx[i]];
-
-                glUniform1i(glGetUniformLocation(texturedMeshProgram.handle, "uTexture"), 0);
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
-
                 Submesh& submesh = mesh.submeshes[i];
                 glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                glBindVertexArray(0);
             }
         }
     }
-    */
+
     glUseProgram(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -591,6 +580,7 @@ void App::Render()
                 if (go.IsType(ObjectType::Model))
                 {
                     glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), mBuffer.handle, go.GetLocalOffset(), go.GetLocalSize());
+                    
                     Mesh mesh = go.GetMesh();
                     for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                     {
@@ -629,31 +619,20 @@ void App::Render()
 
                 glUniform1i(glGetUniformLocation(blitProgram.handle, "uColorTexture"), 0);
                 glUniform1f(glGetUniformLocation(blitProgram.handle, "uThreshold"), 1.0f);
-                /*
+                
                 for (GameObject& go : gameObject)
                 {
                     if (go.IsType(ObjectType::Model))
                     {
-                        glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), mBuffer.handle, go.GetLocalOffset(), go.GetLocalSize());
                         Mesh mesh = go.GetMesh();
                         for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                         {
-                            GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                            glBindVertexArray(vao);
-
-                            Material& submeshMaterial = materials[go.GetMesh().materialIdx[i]];
-
-                            glUniform1i(glGetUniformLocation(texturedMeshProgram.handle, "uTexture"), 0);
-                            glActiveTexture(GL_TEXTURE0);
-                            glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
-
                             Submesh& submesh = mesh.submeshes[i];
                             glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                            glBindVertexArray(0);
                         }
                     }
                 }
-                */
+                
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 glUseProgram(0);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -685,31 +664,20 @@ void App::Render()
 
                 glUniform1i(glGetUniformLocation(bloomProgram.handle, "uColorMap"), 0);
                 glUniform1i(glGetUniformLocation(bloomProgram.handle, "uMaxLod"), 4.0f);
-                /*
+                
                 for (GameObject& go : gameObject)
                 {
                     if (go.IsType(ObjectType::Model))
                     {
-                        glBindBufferRange(GL_UNIFORM_BUFFER, BINDING(1), mBuffer.handle, go.GetLocalOffset(), go.GetLocalSize());
                         Mesh mesh = go.GetMesh();
                         for (u32 i = 0; i < mesh.submeshes.size(); ++i)
                         {
-                            GLuint vao = FindVAO(mesh, i, texturedMeshProgram);
-                            glBindVertexArray(vao);
-
-                            Material& submeshMaterial = materials[go.GetMesh().materialIdx[i]];
-
-                            glUniform1i(glGetUniformLocation(texturedMeshProgram.handle, "uTexture"), 0);
-                            glActiveTexture(GL_TEXTURE0);
-                            glBindTexture(GL_TEXTURE_2D, textures[submeshMaterial.albedoTextureIdx].handle);
-
                             Submesh& submesh = mesh.submeshes[i];
                             glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                            glBindVertexArray(0);
                         }
                     }
                 }
-                */
+                
                 glUseProgram(0);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
             }
