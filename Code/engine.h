@@ -26,7 +26,8 @@ struct OpenGLInfo
 enum Mode
 {
     Mode_TexturedQuad,
-    Mode_TexturedMesh,
+    Mode_TexturedMesh, 
+    Mode_Bloom,
     Mode_Count
 };
 
@@ -70,6 +71,7 @@ private:
     // program indices
     u32 texturedGeometryProgramIdx;
     u32 texturedMeshProgramIdx;
+    u32 bloomProgramIdx;
     
     // texture indices
     u32 diceTexIdx;

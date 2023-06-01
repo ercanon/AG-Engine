@@ -6,10 +6,10 @@ Camera::Camera()
 	zFar = 1000.0f;
 
 	//Camera Position
-	pos = vec3(0.0f, 0.0f, 0.0f);
+	pos = vec3(0.0f, 0.0f, 5.0f);
 
 	//Camera Direction
-	target = vec3(1.0f, 0.0f, 0.0f);
+	target = vec3(0.0f, 0.0f, 0.0f);
 	direction = normalize(pos - target);
 
 	//Right axis' camera

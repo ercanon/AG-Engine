@@ -49,14 +49,14 @@ GameObject::GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Li
 void GameObject::Update(App* app)
 {
     worldMatrix = TransformPositionScale(objPos, objScale);
-    worldViewProjection = app->camera.projection * app->camera.view * translate(worldMatrix, vec3(1.0f, 1.0f, 0.0f));
+    worldViewProjection = app->camera.projection * app->camera.view * translate(worldMatrix, vec3(0.0f, 0.0f, 0.0f));
 }
 
 void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer& buffer)
 {
     if (objType == ObjectType::Model)
     {
-        AlignHead(*buffer, uniformBlockAligment);
+        AlignHead(buffer, uniformBlockAligment);
 
         localParamsOffset = buffer.head;
 
@@ -70,7 +70,7 @@ void GameObject::HandleBuffer(Buffer& buffer)
 {
     if (objType == ObjectType::Lightning)
     {
-        AlignHead(*buffer, sizeof(vec4));
+        AlignHead(buffer, sizeof(vec4));
 
         PushUInt(buffer, light.type);
         PushVec3(buffer, light.color);

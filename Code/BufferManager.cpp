@@ -55,3 +55,48 @@ void PushAlignedData(Buffer& buffer, const void* data, u32 size, u32 alignment)
     memcpy((u8*)buffer.data + buffer.head, data, size);
     buffer.head += size;
 }
+
+
+
+/* --------------------- FRAMEBUFFER --------------------- */
+FrameBuffer::FrameBuffer()
+{
+    color = true;
+    normal = true;
+    position = true;
+    emissive = true;
+    depth = true;
+}
+
+void FrameBuffer::Bind()
+{
+    glGenFramebuffers(1, &frameBufferHandle);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
+}
+
+void FrameBuffer::TextureAttach(GLuint attachPos, GLuint color)
+{
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachPos, GL_TEXTURE_2D, color, 0);
+}
+
+void FrameBuffer::CheckStatus()
+{
+    GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (framebufferStatus != GL_FRAMEBUFFER_COMPLETE)
+    {
+        switch (framebufferStatus)
+        {
+        case GL_FRAMEBUFFER_UNDEFINED:                      ELOG("GL_FRAMEBUFFER_UNDEFINED"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:          ELOG("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:  ELOG("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:         ELOG("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:         ELOG("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
+        case GL_FRAMEBUFFER_UNSUPPORTED:                    ELOG("GL_FRAMEBUFFER_UNSUPPORTED"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:         ELOG("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:       ELOG("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
+        default: ELOG("Unknown framebuffer status error");
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}

@@ -154,3 +154,67 @@
 	}
 	#endif
 #endif
+
+
+
+#ifdef BLOOM
+	uniform sampler2D uColorTexture;
+	uniform float uThreshold;
+
+	in vec2 vtexCoord;
+
+	out vec4 oColor;
+	
+	void main()
+	{
+		vec4 texel = texture2D(uColorTexture, texCoord);
+		float luminance = dot(vec3(0.2126, 0.7152, 0.0722), texel.rgb);
+
+		luminance = max(0.0, luminance - uThreshold);
+		texel.rgb *= sign(luminance);
+		texel.a = 1.0;
+
+		oColor = texel;
+	}
+#endif
+
+#ifdef Blur
+	uniform sampler2D uColorMap;
+	uniform vec2 uDirection;
+	uniform int uInputLod;
+
+	in vec2 vtexCoord;
+
+	out vec4 oColor;
+	
+	void main()
+	{
+		vec2 texSize = textureSize(uColorMap, uInputLod);
+		vec2 texelSize = 1.0/texSize;
+		vec2 marginl = texelSize * 0.5;
+		vec2 margin2 = vec2(1.0) - margin1;
+
+		oColor = vec4(0.0);
+
+		veca directionFragCoord = gl_FragCoord.xy * uDirection;
+		int coord = int(directionFragCoord.x + directionFragCoord.y);
+		vec2 directionTexSize = texSize * direction;
+		
+		int size = int(directionTexSize.x + directionTexSize.y);
+		int kernelRadius = 24;
+		int kernelBegin = -min(kernelRadius, coord);
+		int kernelEnd = min(kernelRadius, size - coord);
+		float weight = 0.0;
+		
+		for (int i = kernelBegin; i <= kernelEnd; ++i)
+		{
+			float currentWeight = smoothstep(float(kernelRadius), 0.0, float(abs(i)));
+			vec2 finalTexCoords = vtexCoord + i * uDirection * texelSize;
+			finalTexCoords = clamp(finalTexCoords, marginl, margin2);
+			oColor += texturelod(uColorMap, finalTexCoords, uInputLod) * currentWeight;
+			weight += currentWeight;	
+		}
+		
+		oColor /= weight;
+	}
+#endif

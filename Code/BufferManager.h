@@ -21,18 +21,36 @@ struct Buffer
     void* data;
 };
 
-struct FrameBuffer
+class FrameBuffer
 {
+public:
+    FrameBuffer();
+    virtual ~FrameBuffer() {};
+
+    void Bind();
+    void TextureAttach(GLuint attachPos, GLuint color);
+    void CheckStatus();
+    
     GLuint frameBufferHandle;
     GLuint colorAttachment;
     GLuint normalAttachment;
     GLuint positionAttachment;
+    GLuint emissiveAttachment;
     GLuint depthAttachment;
 
+    bool shader;
     bool color;
     bool normal;
     bool position;
+    bool emissive;
     bool depth;
+};
+
+struct Bloom
+{
+    GLuint rtBright;
+    GLuint rtBloomH;
+    vector<FrameBuffer> fboBloom;
 };
 
 bool IsPowerOf2(u32 value);
