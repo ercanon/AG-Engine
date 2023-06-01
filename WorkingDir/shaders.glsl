@@ -157,7 +157,7 @@
 
 
 
-#ifdef BLOOM
+#ifdef BLIT
 	uniform sampler2D uColorTexture;
 	uniform float uThreshold;
 
@@ -178,7 +178,7 @@
 	}
 #endif
 
-#ifdef Blur
+#ifdef BLUR
 	uniform sampler2D uColorMap;
 	uniform vec2 uDirection;
 	uniform int uInputLod;
@@ -198,7 +198,7 @@
 
 		veca directionFragCoord = gl_FragCoord.xy * uDirection;
 		int coord = int(directionFragCoord.x + directionFragCoord.y);
-		vec2 directionTexSize = texSize * direction;
+		vec2 directionTexSize = texSize * uDirection;
 		
 		int size = int(directionTexSize.x + directionTexSize.y);
 		int kernelRadius = 24;
@@ -216,5 +216,23 @@
 		}
 		
 		oColor /= weight;
+	}
+#endif
+
+#ifdef BLOOM
+	uniform sampler2D uColorMap;
+	uniform int uMaxLod;
+
+	in vec2 vtexCoord;
+
+	out vec4 oColor;
+	
+	void main()
+	{
+		oColor = vec4(0.0);
+		for (int lod = 0; uMaxLod; ++lod)
+			oColor += textureLod(uColorMap, vtexCoord, float(lod));
+
+		oColor.a = 1.0;
 	}
 #endif

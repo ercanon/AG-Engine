@@ -40,6 +40,7 @@ public:
     void Gui();
     void Update();
     void Render();
+    void PassBlur(FrameBuffer fb, const ivec2& view, GLenum colorAttach, GLuint inputTExture, GLint inputLod, const ivec2& direction);
 
     virtual bool IsRunning() { return isRunning; }
     virtual ivec2 dispSize(vec2 size = vec2(-1)) { return size != vec2(-1) ? displaySize = size : displaySize; }
@@ -51,7 +52,7 @@ public:
     vector<Texture>     textures;
     vector<Material>    materials;
     vector<GameObject>  gameObject;
-    vector<Program>     programs;
+    //vector<Program>     programs;
     Camera              camera;
     Input               input;
 
@@ -69,9 +70,11 @@ private:
     GameObject* pickedGO;
 
     // program indices
-    u32 texturedGeometryProgramIdx;
-    u32 texturedMeshProgramIdx;
-    u32 bloomProgramIdx;
+    Program texturedGeometryProgram;
+    Program texturedMeshProgram;
+    Program blitProgram;
+    Program blurProgram;
+    Program bloomProgram;
     
     // texture indices
     u32 diceTexIdx;

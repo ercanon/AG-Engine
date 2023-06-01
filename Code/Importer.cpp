@@ -80,7 +80,7 @@ GLuint CreateProgramFromSource(String programSource, const char* shaderName)
     return programHandle;
 }
 
-u32 LoadProgram(App* app, const char* filepath, const char* programName)
+Program LoadProgram(App* app, const char* filepath, const char* programName)
 {
     String programSource = ReadTextFile(filepath);
 
@@ -106,9 +106,7 @@ u32 LoadProgram(App* app, const char* filepath, const char* programName)
         program.vertexInputLayout.attributes.push_back({ (u8)attributeLocation, (u8)attribSize });
     }
 
-    app->programs.push_back(program);
-
-    return app->programs.size() - 1;
+    return program;
 }
 
 

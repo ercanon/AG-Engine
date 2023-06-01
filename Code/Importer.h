@@ -113,7 +113,7 @@ struct Program
 /* --------------------- SHADER --------------------- */
 GLuint CreateProgramFromSource(String programSource, const char* shaderName);
 
-u32 LoadProgram(App* app, const char* filepath, const char* programName);
+Program LoadProgram(App* app, const char* filepath, const char* programName);
 
 
 /* --------------------- TEXTURE --------------------- */
