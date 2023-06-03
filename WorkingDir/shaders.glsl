@@ -43,6 +43,7 @@
 
 
 #ifdef TEXTURED_MESH
+	#define MAX_LIGHTS 16
 	struct Light
 	{
 		unsigned int type;
@@ -64,7 +65,7 @@
 	{
 		vec3		 uCameraPosition;
 		unsigned int uLightCount;
-		Light		 uLight[16];
+		Light		 uLight[MAX_LIGHTS];
 	};
 
 	layout (binding = 1, std140) uniform LocalParams
@@ -102,16 +103,18 @@
 	{
 		vec3		 uCameraPosition;
 		unsigned int uLightCount;
-		Light		 uLight[16];
+		Light		 uLight[MAX_LIGHTS];
 	};
 	
 	layout(location = 0) out vec4 oColor;
 	layout(location = 1) out vec4 oNormals;
 	layout(location = 2) out vec4 oPosition;
+	layout(location = 3) out vec4 oEmissive;
 	
 	void main()
 	{
 		vec3 lightStrenght = vec3(0.0);
+		vec3 emissive = vec3(0.0);
 		for(int i = 0; i< uLightCount; ++i)
 		{
 			if(uLight[i].type == 0)
@@ -124,6 +127,8 @@
 				vec3 reflectDir = reflect(normalize(-uLight[i].direction), normalize(vNormal));
 				float spec = pow(max(dot(normalize(vViewDir), reflectDir), 0.0), 32);
 				vec3 specular = uLight[i].intensity.z * spec * uLight[i].color;
+
+				emissive += ambient + diffuse + specular;
 
 				lightStrenght += (ambient + diffuse + specular) * texture(uTexture, vTexCoord).rgb;
 			}
@@ -144,6 +149,8 @@
 				vec3 specular = uLight[i].intensity.z * spec * uLight[i].color;
 
 				diffuse *= attenuation * 2;
+				emissive += ambient + diffuse + specular;
+
 				lightStrenght += (ambient + diffuse + specular) * texture(uTexture, vTexCoord).rgb;
 			}
 		}
@@ -151,6 +158,7 @@
 		oColor = vec4(lightStrenght, 1.0);
 		oNormals = vec4(normalize(vNormal),1.0);
 		oPosition = vec4(vPosition,1.0);
+		oEmissive = vec4(emissive, 1.0);
 	}
 	#endif
 #endif
@@ -161,30 +169,28 @@
 #version 330 core
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
-	layout(location = 0) in vec3 aPosition;
-	layout(location = 1) in vec2 aTexCoord;
+	layout(location = 0) in vec2 aTexCoord;
 	
 	out vec2 vTexCoord;
 	
 	void main()
 	{
 		vTexCoord = aTexCoord;
-		gl_Position = vec4(aPosition, 1.0);
 	}
 		
 
 	#elif defined(FRAGMENT) ///////////////////////////////////////////////
-	
+
 	uniform sampler2D uColorTexture;
 	uniform float uThreshold;
 
 	in vec2 vtexCoord;
 
-	out vec4 oColor;
+	layout(location = 0) out vec4 oColor;
 	
 	void main()
 	{
-		vec4 texel = texture2D(uColorTexture, texCoord);
+		vec4 texel = texture2D(uColorTexture, vtexCoord);
 		float luminance = dot(vec3(0.2126, 0.7152, 0.0722), texel.rgb);
 
 		luminance = max(0.0, luminance - uThreshold);
@@ -193,7 +199,6 @@
 
 		oColor = texel;
 	}
-
 	#endif
 #endif
 
@@ -201,17 +206,16 @@
 #version 330 core
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
-	layout(location = 0) in vec3 aPosition;
-	layout(location = 1) in vec2 aTexCoord;
+	layout(location = 0) in vec2 aTexCoord;
 	
 	out vec2 vTexCoord;
 	
 	void main()
 	{
 		vTexCoord = aTexCoord;
-		gl_Position = vec4(aPosition, 1.0);
 	}
 		
+
 	#elif defined(FRAGMENT) ///////////////////////////////////////////////
 
 	uniform sampler2D uColorMap;
@@ -220,7 +224,7 @@
 
 	in vec2 vtexCoord;
 
-	out vec4 oColor;
+	layout(location = 0) out vec4 oColor;
 	
 	void main()
 	{
@@ -259,17 +263,16 @@
 #version 330 core
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
-	layout(location = 0) in vec3 aPosition;
-	layout(location = 1) in vec2 aTexCoord;
+	layout(location = 0) in vec2 aTexCoord;
 	
 	out vec2 vTexCoord;
 	
 	void main()
 	{
 		vTexCoord = aTexCoord;
-		gl_Position = vec4(aPosition, 1.0);
 	}
 		
+
 	#elif defined(FRAGMENT) ///////////////////////////////////////////////
 
 	uniform sampler2D uColorMap;
@@ -277,12 +280,12 @@
 
 	in vec2 vtexCoord;
 
-	out vec4 oColor;
+	layout(location = 0) out vec4 oColor;
 	
 	void main()
 	{
 		oColor = vec4(0.0);
-		for (int lod = 0; uMaxLod; ++lod)
+		for (int lod = 0; lod < uMaxLod; ++lod)
 			oColor += textureLod(uColorMap, vtexCoord, float(lod));
 
 		oColor.a = 1.0;

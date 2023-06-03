@@ -138,7 +138,7 @@ void App::PassBlur(FrameBuffer fb, const ivec2 &view, GLenum colorAttach, GLuint
     glUniform2f(glGetUniformLocation(blurProgram.handle, "uDirection"), direction.x, direction.y);
     glUniform1i(glGetUniformLocation(blurProgram.handle, "uInputLod"), inputLod);
     
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
     glUseProgram(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -258,8 +258,6 @@ void App::Init()
     glBindVertexArray(0);
 
     /* --------------------- Bloom --------------------- */
-    if (bloom.rtBright != 0)
-        glDeleteTextures(1, &bloom.rtBright);
     glGenTextures(1, &bloom.rtBright);
     glBindTexture(GL_TEXTURE_2D, bloom.rtBright);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -273,10 +271,8 @@ void App::Init()
     glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x / 8, displaySize.y / 8,   0, GL_RGBA, GL_FLOAT, NULL);
     glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x / 16, displaySize.y / 16, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x / 32, displaySize.y / 32, 0, GL_RGBA, GL_FLOAT, NULL);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-    if (bloom.rtBloomH != 0)
-        glDeleteTextures(1, &bloom.rtBloomH);
     glGenTextures(1, &bloom.rtBloomH);
     glBindTexture(GL_TEXTURE_2D, bloom.rtBloomH);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -290,7 +286,7 @@ void App::Init()
     glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x / 8, displaySize.y / 8,   0, GL_RGBA, GL_FLOAT, NULL);
     glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x / 16, displaySize.y / 16, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x / 32, displaySize.y / 32, 0, GL_RGBA, GL_FLOAT, NULL);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
     
     bloom.fboBloom.push_back(FrameBuffer{});
     bloom.fboBloom.push_back(FrameBuffer{});
@@ -596,61 +592,58 @@ void App::Render()
         }
         case Mode_Bloom:
         {
-            {
-                glBindFramebuffer(GL_FRAMEBUFFER, bloom.fboBloom[0].frameBufferHandle);
+            /* --------------------- BLIT --------------------- */
+            glBindFramebuffer(GL_FRAMEBUFFER, bloom.fboBloom[0].frameBufferHandle);
+            glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-                glDrawBuffer(GL_COLOR_ATTACHMENT0);
-                glViewport(0, 0, displaySize.x/2, displaySize.y/2);
-                
-                glDisable(GL_DEPTH_TEST);
+            glViewport(0, 0, displaySize.x / 2, displaySize.y / 2);
 
-                glUseProgram(blitProgram.handle);
+            glUseProgram(blitProgram.handle);
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, frameBuffer.colorAttachment);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, frameBuffer.emissiveAttachment);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-                glUniform1i(glGetUniformLocation(blitProgram.handle, "uColorTexture"), 0);
-                glUniform1f(glGetUniformLocation(blitProgram.handle, "uThreshold"), 1.0f);
+            glUniform1i(glGetUniformLocation(blitProgram.handle, "uColorTexture"), 0);
+            glUniform1f(glGetUniformLocation(blitProgram.handle, "uThreshold"), 1.0f);
 
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-                
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glUseProgram(0);
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            }
+            //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
             glBindTexture(GL_TEXTURE_2D, bloom.rtBright);
-            glGenerateMipmap(GL_TEXTURE_2D);
 
+            glUseProgram(0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            /* --------------------- BLUR --------------------- */
             for (int i = 0; i < bloom.fboBloom.size(); i++)
             {
                 PassBlur(bloom.fboBloom[i], displaySize / (2 * (i + 1)), GL_COLOR_ATTACHMENT1, bloom.rtBright, i, ivec2(1.0f, 0.0f));
                 PassBlur(bloom.fboBloom[i], displaySize / (2 * (i + 1)), GL_COLOR_ATTACHMENT0, bloom.rtBloomH, i, ivec2(0.0f, 1.0f));
             }
 
-            {
-                glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.frameBufferHandle);
+            /* --------------------- BLOOM --------------------- */
+            glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.frameBufferHandle);
+            glDrawBuffer(GL_COLOR_ATTACHMENT3);
 
-                glDrawBuffer(GL_COLOR_ATTACHMENT3);
-                glViewport(0, 0, displaySize.x, displaySize.y);
+            glViewport(0, 0, displaySize.x, displaySize.y);
 
-                glDisable(GL_DEPTH_TEST);
-                glBlendFunc(GL_ONE, GL_ONE);
+            glDisable(GL_DEPTH_TEST);
+            glBlendFunc(GL_ONE, GL_ONE);
 
-                glUseProgram(bloomProgram.handle);
+            glUseProgram(bloomProgram.handle);
 
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, bloom.rtBright);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, bloom.rtBright);
 
-                glUniform1i(glGetUniformLocation(bloomProgram.handle, "uColorMap"), 0);
-                glUniform1i(glGetUniformLocation(bloomProgram.handle, "uMaxLod"), 4);
+            glUniform1i(glGetUniformLocation(bloomProgram.handle, "uColorMap"), 0);
+            glUniform1i(glGetUniformLocation(bloomProgram.handle, "uMaxLod"), 4);
 
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-                
-                glUseProgram(0);
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            }
+            //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+            glUseProgram(0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         case Mode_TexturedQuad:
         {
@@ -662,7 +655,7 @@ void App::Render()
             glBindVertexArray(vao);
 
             glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "uTexture"), 0);
-            glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "isDepth"), frameBuffer.depth && !frameBuffer.normal && !frameBuffer.position && !frameBuffer.color);
+            glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "isDepth"), frameBuffer.depth && !frameBuffer.normal && !frameBuffer.position && !frameBuffer.color && !frameBuffer.emissive);
             glActiveTexture(GL_TEXTURE0);
            
             if (frameBuffer.color)
