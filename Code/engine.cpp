@@ -120,34 +120,25 @@ GLuint FindVAO(Mesh& mesh, u32 submeshIndex, const Program& program)
     return vaoHandle;
 }
 
-void App::PassBlur(FrameBuffer fb, const ivec2 &view, GLenum colorAttach, GLuint inputTExture, GLint inputLod, const ivec2 &direction)
+void App::PassBlur(FrameBuffer fb, const ivec2 &view, GLenum colorAttach, GLuint inputTexture, GLint inputLod, const ivec2 &direction)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fb.frameBufferHandle);
 
     glDrawBuffer(colorAttach);
     glViewport(0, 0, view.x, view.y);
+
+    glDisable(GL_DEPTH_TEST);
     
     glUseProgram(blurProgram.handle);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, inputTExture);
+    glBindTexture(GL_TEXTURE_2D, inputTexture);
     
     glUniform1i(glGetUniformLocation(blurProgram.handle, "uColorMap"), 0);
     glUniform2f(glGetUniformLocation(blurProgram.handle, "uDirection"), direction.x, direction.y);
     glUniform1i(glGetUniformLocation(blurProgram.handle, "uInputLod"), inputLod);
     
-    for (GameObject& go : gameObject)
-    {
-        if (go.IsType(ObjectType::Model))
-        {
-            Mesh mesh = go.GetMesh();
-            for (u32 i = 0; i < mesh.submeshes.size(); ++i)
-            {
-                Submesh& submesh = mesh.submeshes[i];
-                glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-            }
-        }
-    }
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
     glUseProgram(0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -237,11 +228,11 @@ void App::Init()
     glBindTexture(  GL_TEXTURE_2D, 0);
 
     frameBuffer.Bind();
-    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT0, frameBuffer.colorAttachment);
-    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT1, frameBuffer.normalAttachment);
-    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT2, frameBuffer.positionAttachment);
-    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT3, frameBuffer.emissiveAttachment);
-    frameBuffer.TextureAttach(GL_DEPTH_ATTACHMENT,  frameBuffer.depthAttachment);
+    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT0, frameBuffer.colorAttachment,    0);
+    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT1, frameBuffer.normalAttachment,   0);
+    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT2, frameBuffer.positionAttachment, 0);
+    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT3, frameBuffer.emissiveAttachment, 0);
+    frameBuffer.TextureAttach(GL_DEPTH_ATTACHMENT,  frameBuffer.depthAttachment,    0);
     frameBuffer.CheckStatus();
 
     /* --------------------- Geometry --------------------- */
@@ -277,11 +268,11 @@ void App::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MIPMAP_BASE_LEVEL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, MIPMAP_MAX_LEVEL);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x/2, displaySize.y/2, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, displaySize.x/4, displaySize.y/4, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x/8, displaySize.y/8, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x/16, displaySize.y/16, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x/32, displaySize.y/32, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x / 2, displaySize.y / 2,   0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, displaySize.x / 4, displaySize.y / 4,   0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x / 8, displaySize.y / 8,   0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x / 16, displaySize.y / 16, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x / 32, displaySize.y / 32, 0, GL_RGBA, GL_FLOAT, NULL);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     if (bloom.rtBloomH != 0)
@@ -294,11 +285,11 @@ void App::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MIPMAP_BASE_LEVEL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, MIPMAP_MAX_LEVEL);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x / 2, displaySize.y / 2, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, displaySize.x / 4, displaySize.y / 4, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x / 8, displaySize.y / 8, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x / 16, displaySize.y / 16, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x / 32, displaySize.y / 32, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x / 2, displaySize.y / 2,   0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA16F, displaySize.x / 4, displaySize.y / 4,   0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA16F, displaySize.x / 8, displaySize.y / 8,   0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA16F, displaySize.x / 16, displaySize.y / 16, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 4, GL_RGBA16F, displaySize.x / 32, displaySize.y / 32, 0, GL_RGBA, GL_FLOAT, NULL);
     glGenerateMipmap(GL_TEXTURE_2D);
     
     bloom.fboBloom.push_back(FrameBuffer{});
@@ -307,12 +298,12 @@ void App::Init()
     bloom.fboBloom.push_back(FrameBuffer{});
     bloom.fboBloom.push_back(FrameBuffer{});
 
-    for (FrameBuffer& fb : bloom.fboBloom)
+    for (int i = 0; i < bloom.fboBloom.size(); i++)
     {
-        fb.Bind();
-        fb.TextureAttach(GL_COLOR_ATTACHMENT0, bloom.rtBright);
-        fb.TextureAttach(GL_COLOR_ATTACHMENT1, bloom.rtBloomH);
-        fb.CheckStatus();
+        bloom.fboBloom[i].Bind();
+        bloom.fboBloom[i].TextureAttach(GL_COLOR_ATTACHMENT0, bloom.rtBright, i);
+        bloom.fboBloom[i].TextureAttach(GL_COLOR_ATTACHMENT1, bloom.rtBloomH, i);
+        bloom.fboBloom[i].CheckStatus();
     }
 
 
@@ -563,7 +554,7 @@ void App::Render()
         {
             glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.frameBufferHandle);
 
-            GLuint drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+            GLuint drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
             glDrawBuffers(ARRAY_COUNT(drawBuffers), drawBuffers);
 
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -609,29 +600,20 @@ void App::Render()
                 glBindFramebuffer(GL_FRAMEBUFFER, bloom.fboBloom[0].frameBufferHandle);
 
                 glDrawBuffer(GL_COLOR_ATTACHMENT0);
-                glViewport(0, 0, displaySize.x, displaySize.y);
+                glViewport(0, 0, displaySize.x/2, displaySize.y/2);
+                
+                glDisable(GL_DEPTH_TEST);
 
                 glUseProgram(blitProgram.handle);
 
                 glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, frameBuffer.emissiveAttachment);
+                glBindTexture(GL_TEXTURE_2D, frameBuffer.colorAttachment);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
                 glUniform1i(glGetUniformLocation(blitProgram.handle, "uColorTexture"), 0);
                 glUniform1f(glGetUniformLocation(blitProgram.handle, "uThreshold"), 1.0f);
-                
-                for (GameObject& go : gameObject)
-                {
-                    if (go.IsType(ObjectType::Model))
-                    {
-                        Mesh mesh = go.GetMesh();
-                        for (u32 i = 0; i < mesh.submeshes.size(); ++i)
-                        {
-                            Submesh& submesh = mesh.submeshes[i];
-                            glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                        }
-                    }
-                }
+
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
                 
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 glUseProgram(0);
@@ -644,10 +626,6 @@ void App::Render()
             for (int i = 0; i < bloom.fboBloom.size(); i++)
             {
                 PassBlur(bloom.fboBloom[i], displaySize / (2 * (i + 1)), GL_COLOR_ATTACHMENT1, bloom.rtBright, i, ivec2(1.0f, 0.0f));
-            }
-            
-            for (int i = 0; i < bloom.fboBloom.size(); i++)
-            {
                 PassBlur(bloom.fboBloom[i], displaySize / (2 * (i + 1)), GL_COLOR_ATTACHMENT0, bloom.rtBloomH, i, ivec2(0.0f, 1.0f));
             }
 
@@ -657,26 +635,18 @@ void App::Render()
                 glDrawBuffer(GL_COLOR_ATTACHMENT3);
                 glViewport(0, 0, displaySize.x, displaySize.y);
 
+                glDisable(GL_DEPTH_TEST);
+                glBlendFunc(GL_ONE, GL_ONE);
+
                 glUseProgram(bloomProgram.handle);
 
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, bloom.rtBright);
 
                 glUniform1i(glGetUniformLocation(bloomProgram.handle, "uColorMap"), 0);
-                glUniform1i(glGetUniformLocation(bloomProgram.handle, "uMaxLod"), 4.0f);
-                
-                for (GameObject& go : gameObject)
-                {
-                    if (go.IsType(ObjectType::Model))
-                    {
-                        Mesh mesh = go.GetMesh();
-                        for (u32 i = 0; i < mesh.submeshes.size(); ++i)
-                        {
-                            Submesh& submesh = mesh.submeshes[i];
-                            glDrawElements(GL_TRIANGLES, submesh.indices.size(), GL_UNSIGNED_INT, (void*)(u64)submesh.indexOffset);
-                        }
-                    }
-                }
+                glUniform1i(glGetUniformLocation(bloomProgram.handle, "uMaxLod"), 4);
+
+                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
                 
                 glUseProgram(0);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -694,11 +664,8 @@ void App::Render()
             glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "uTexture"), 0);
             glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "isDepth"), frameBuffer.depth && !frameBuffer.normal && !frameBuffer.position && !frameBuffer.color);
             glActiveTexture(GL_TEXTURE0);
-
            
-            if (frameBuffer.shader)
-                glBindTexture(GL_TEXTURE_2D, frameBuffer.frameBufferHandle);
-            else if (frameBuffer.color)
+            if (frameBuffer.color)
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.colorAttachment);
             else if (frameBuffer.normal)
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.normalAttachment);
@@ -708,7 +675,6 @@ void App::Render()
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.emissiveAttachment);
             else if (frameBuffer.depth)
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.depthAttachment);
-            glGenerateMipmap(GL_TEXTURE_2D);
 
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 

@@ -16,10 +16,10 @@
 		vTexCoord = aTexCoord;
 		gl_Position = vec4(aPosition, 1.0);
 	}
-	
-	
+		
+
 	#elif defined(FRAGMENT) ///////////////////////////////////////////////
-	
+
 	in vec2 vTexCoord;
 	
 	uniform sampler2D uTexture;
@@ -159,7 +159,22 @@
 
 #ifdef BLIT
 #version 330 core
+	#if defined(VERTEX) ///////////////////////////////////////////////////
+	
+	layout(location = 0) in vec3 aPosition;
+	layout(location = 1) in vec2 aTexCoord;
+	
+	out vec2 vTexCoord;
+	
+	void main()
+	{
+		vTexCoord = aTexCoord;
+		gl_Position = vec4(aPosition, 1.0);
+	}
+		
 
+	#elif defined(FRAGMENT) ///////////////////////////////////////////////
+	
 	uniform sampler2D uColorTexture;
 	uniform float uThreshold;
 
@@ -178,9 +193,27 @@
 
 		oColor = texel;
 	}
+
+	#endif
 #endif
 
 #ifdef BLUR
+#version 330 core
+	#if defined(VERTEX) ///////////////////////////////////////////////////
+	
+	layout(location = 0) in vec3 aPosition;
+	layout(location = 1) in vec2 aTexCoord;
+	
+	out vec2 vTexCoord;
+	
+	void main()
+	{
+		vTexCoord = aTexCoord;
+		gl_Position = vec4(aPosition, 1.0);
+	}
+		
+	#elif defined(FRAGMENT) ///////////////////////////////////////////////
+
 	uniform sampler2D uColorMap;
 	uniform vec2 uDirection;
 	uniform int uInputLod;
@@ -219,10 +252,25 @@
 		
 		oColor /= weight;
 	}
+	#endif
 #endif
 
 #ifdef BLOOM
 #version 330 core
+	#if defined(VERTEX) ///////////////////////////////////////////////////
+	
+	layout(location = 0) in vec3 aPosition;
+	layout(location = 1) in vec2 aTexCoord;
+	
+	out vec2 vTexCoord;
+	
+	void main()
+	{
+		vTexCoord = aTexCoord;
+		gl_Position = vec4(aPosition, 1.0);
+	}
+		
+	#elif defined(FRAGMENT) ///////////////////////////////////////////////
 
 	uniform sampler2D uColorMap;
 	uniform int uMaxLod;
@@ -239,4 +287,5 @@
 
 		oColor.a = 1.0;
 	}
+	#endif
 #endif

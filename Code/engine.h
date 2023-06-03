@@ -40,7 +40,7 @@ public:
     void Gui();
     void Update();
     void Render();
-    void PassBlur(FrameBuffer fb, const ivec2& view, GLenum colorAttach, GLuint inputTExture, GLint inputLod, const ivec2& direction);
+    void PassBlur(FrameBuffer fb, const ivec2& view, GLenum colorAttach, GLuint inputTexture, GLint inputLod, const ivec2& direction);
 
     virtual bool IsRunning() { return isRunning; }
     virtual ivec2 dispSize(vec2 size = vec2(-1)) { return size != vec2(-1) ? displaySize = size : displaySize; }

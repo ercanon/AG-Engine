@@ -28,7 +28,7 @@ public:
     virtual ~FrameBuffer() {};
 
     void Bind();
-    void TextureAttach(GLuint attachPos, GLuint color);
+    void TextureAttach(GLuint attachPos, GLuint color, GLint level);
     void CheckStatus();
     
     GLuint frameBufferHandle;

@@ -74,9 +74,9 @@ void FrameBuffer::Bind()
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
 }
 
-void FrameBuffer::TextureAttach(GLuint attachPos, GLuint color)
+void FrameBuffer::TextureAttach(GLuint attachPos, GLuint color, GLint level)
 {
-    glFramebufferTexture2D(GL_FRAMEBUFFER, attachPos, GL_TEXTURE_2D, color, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachPos, GL_TEXTURE_2D, color, level);
 }
 
 void FrameBuffer::CheckStatus()
