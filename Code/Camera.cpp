@@ -63,30 +63,3 @@ void Camera::ControlCamera(App* app)
 	if (app->input.keys[Key::K_E] == BUTTON_PRESSED)
 		pos += upCamera * speed;
 }
-/*
-void Camera::RotateAround(float dt, vec3& newFront, vec3& newUp)
-{
-	float dX = -app->input->GetMouseXMotion();
-	float dY = -app->input->GetMouseYMotion();
-	if (dY != 0)
-	{
-		quat rotateVertical;
-		rotateVertical = rotateVertical.RotateAxisAngle(normalize(rightAxis), dY * dt * 2);
-		newFront = rotateVertical * newFront;
-		newUp = rotateVertical * newUp;
-		normalize(newFront);
-		normalize(newUp);
-		vec3::Orthonormalize(newFront, newUp);
-	}
-	if (dX != 0)
-	{
-		quat rotateHorizontal;
-		rotateHorizontal = rotateHorizontal.RotateY(dX * dt);
-		newFront = rotateHorizontal * newFront;
-		newUp = rotateHorizontal * newUp;
-		normalize(newFront);
-		normalize(newUp);
-		float3::Orthonormalize(newFront, newUp);
-	}
-}
-*/

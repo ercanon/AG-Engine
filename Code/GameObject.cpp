@@ -49,7 +49,7 @@ GameObject::GameObject(string name, vec3 position, vec3 scale, vec3 rotation, Li
 void GameObject::Update(App* app)
 {
     worldMatrix = TransformPositionScale(objPos, objScale);
-    worldViewProjection = app->camera.projection * app->camera.view * translate(worldMatrix, vec3(0.0f, 0.0f, 0.0f));
+    worldViewProjection = app->camera.projection * app->camera.view * translate(worldMatrix, vec3(0.0f));
 }
 
 void GameObject::HandleBuffer(GLint uniformBlockAligment, Buffer& buffer)

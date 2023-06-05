@@ -52,7 +52,6 @@ public:
     vector<Texture>     textures;
     vector<Material>    materials;
     vector<GameObject>  gameObject;
-    //vector<Program>     programs;
     Camera              camera;
     Input               input;
 
