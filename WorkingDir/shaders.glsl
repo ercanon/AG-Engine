@@ -165,17 +165,18 @@
 
 
 
-#ifdef BLIT
-#version 330 core
+#ifdef BLIT_TEXTURE
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
-	layout(location = 0) in vec2 aTexCoord;
+	layout(location = 0) in vec3 aPosition;
+	layout(location = 1) in vec2 aTexCoord;
 	
 	out vec2 vTexCoord;
 	
 	void main()
 	{
 		vTexCoord = aTexCoord;
+		gl_Position = vec4(aPosition, 1.0);
 	}
 		
 
@@ -184,13 +185,13 @@
 	uniform sampler2D uColorTexture;
 	uniform float uThreshold;
 
-	in vec2 vtexCoord;
+	in vec2 vTexCoord;
 
 	layout(location = 0) out vec4 oColor;
 	
 	void main()
 	{
-		vec4 texel = texture2D(uColorTexture, vtexCoord);
+		vec4 texel = texture(uColorTexture, vTexCoord);
 		float luminance = dot(vec3(0.2126, 0.7152, 0.0722), texel.rgb);
 
 		luminance = max(0.0, luminance - uThreshold);
@@ -202,17 +203,18 @@
 	#endif
 #endif
 
-#ifdef BLUR
-#version 330 core
+#ifdef BLUR_TEXTURE
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
-	layout(location = 0) in vec2 aTexCoord;
+	layout(location = 0) in vec3 aPosition;
+	layout(location = 1) in vec2 aTexCoord;
 	
 	out vec2 vTexCoord;
 	
 	void main()
 	{
 		vTexCoord = aTexCoord;
+		gl_Position = vec4(aPosition, 1.0);
 	}
 		
 
@@ -222,7 +224,7 @@
 	uniform vec2 uDirection;
 	uniform int uInputLod;
 
-	in vec2 vtexCoord;
+	in vec2 vTexCoord;
 
 	layout(location = 0) out vec4 oColor;
 	
@@ -231,15 +233,15 @@
 		vec2 texSize = textureSize(uColorMap, uInputLod);
 		vec2 texelSize = 1.0/texSize;
 		vec2 marginl = texelSize * 0.5;
-		vec2 margin2 = vec2(1.0) - margin1;
+		vec2 margin2 = vec2(1.0) - marginl;
 
 		oColor = vec4(0.0);
 
-		veca directionFragCoord = gl_FragCoord.xy * uDirection;
-		int coord = int(directionFragCoord.x + directionFragCoord.y);
-		vec2 directionTexSize = texSize * uDirection;
+		vec2 dirFragCoord = gl_FragCoord.xy * uDirection;
+		int coord = int(dirFragCoord.x + dirFragCoord.y);
+		vec2 dirTexSize = texSize * uDirection;
 		
-		int size = int(directionTexSize.x + directionTexSize.y);
+		int size = int(dirTexSize.x + dirTexSize.y);
 		int kernelRadius = 24;
 		int kernelBegin = -min(kernelRadius, coord);
 		int kernelEnd = min(kernelRadius, size - coord);
@@ -248,9 +250,9 @@
 		for (int i = kernelBegin; i <= kernelEnd; ++i)
 		{
 			float currentWeight = smoothstep(float(kernelRadius), 0.0, float(abs(i)));
-			vec2 finalTexCoords = vtexCoord + i * uDirection * texelSize;
+			vec2 finalTexCoords = vTexCoord + i * uDirection * texelSize;
 			finalTexCoords = clamp(finalTexCoords, marginl, margin2);
-			oColor += texturelod(uColorMap, finalTexCoords, uInputLod) * currentWeight;
+			oColor += textureLod(uColorMap, finalTexCoords, uInputLod) * currentWeight;
 			weight += currentWeight;	
 		}
 		
@@ -259,17 +261,18 @@
 	#endif
 #endif
 
-#ifdef BLOOM
-#version 330 core
+#ifdef BLOOM_TEXTURE
 	#if defined(VERTEX) ///////////////////////////////////////////////////
 	
-	layout(location = 0) in vec2 aTexCoord;
+	layout(location = 0) in vec3 aPosition;
+	layout(location = 1) in vec2 aTexCoord;
 	
 	out vec2 vTexCoord;
 	
 	void main()
 	{
 		vTexCoord = aTexCoord;
+		gl_Position = vec4(aPosition, 1.0);
 	}
 		
 
@@ -278,7 +281,7 @@
 	uniform sampler2D uColorMap;
 	uniform int uMaxLod;
 
-	in vec2 vtexCoord;
+	in vec2 vTexCoord;
 
 	layout(location = 0) out vec4 oColor;
 	
@@ -286,7 +289,7 @@
 	{
 		oColor = vec4(0.0);
 		for (int lod = 0; lod < uMaxLod; ++lod)
-			oColor += textureLod(uColorMap, vtexCoord, float(lod));
+			oColor += textureLod(uColorMap, vTexCoord, float(lod));
 
 		oColor.a = 1.0;
 	}
