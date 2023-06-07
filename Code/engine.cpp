@@ -220,6 +220,16 @@ void App::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(  GL_TEXTURE_2D, 0);
 
+    glGenTextures(1, &frameBuffer.bloomAttachment);
+    glBindTexture(GL_TEXTURE_2D, frameBuffer.bloomAttachment);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, displaySize.x, displaySize.y, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     glGenTextures(1, &frameBuffer.depthAttachment);
     glBindTexture(  GL_TEXTURE_2D, frameBuffer.depthAttachment);
     glTexImage2D(   GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, displaySize.x, displaySize.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -235,6 +245,7 @@ void App::Init()
     frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT1, frameBuffer.normalAttachment,   0);
     frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT2, frameBuffer.positionAttachment, 0);
     frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT3, frameBuffer.emissiveAttachment, 0);
+    frameBuffer.TextureAttach(GL_COLOR_ATTACHMENT4, frameBuffer.bloomAttachment,    0);
     frameBuffer.TextureAttach(GL_DEPTH_ATTACHMENT,  frameBuffer.depthAttachment,    0);
     frameBuffer.CheckStatus();
 
@@ -448,10 +459,10 @@ void App::Gui()
     }
 
     ImGui::Begin("Rendering Attachment");
-    if (frameBuffer.normal && frameBuffer.position && frameBuffer.depth && frameBuffer.color && frameBuffer.emissive) frameBuffer.shader = true;
+    if (frameBuffer.normal && frameBuffer.position && frameBuffer.depth && frameBuffer.color && frameBuffer.emissive && frameBuffer.bloom) frameBuffer.shader = true;
 
     if (ImGui::Checkbox("Shader", &frameBuffer.shader))
-        frameBuffer.normal = frameBuffer.position = frameBuffer.depth = frameBuffer.color = frameBuffer.emissive = frameBuffer.shader;
+        frameBuffer.normal = frameBuffer.position = frameBuffer.depth = frameBuffer.color = frameBuffer.emissive = frameBuffer.bloom = frameBuffer.shader;
     if (ImGui::Checkbox("Color", &frameBuffer.color))
         if (!frameBuffer.color) frameBuffer.shader = false;
     if (ImGui::Checkbox("Normal", &frameBuffer.normal))
@@ -460,6 +471,8 @@ void App::Gui()
         if (!frameBuffer.position) frameBuffer.shader = false;
     if (ImGui::Checkbox("Emissive", &frameBuffer.emissive))
         if (!frameBuffer.emissive) frameBuffer.shader = false;
+    if (ImGui::Checkbox("Bloom", &frameBuffer.bloom))
+        if (!frameBuffer.bloom) frameBuffer.shader = false;
     if (ImGui::Checkbox("Depth", &frameBuffer.depth))
         if (!frameBuffer.depth) frameBuffer.shader = false;
 
@@ -629,7 +642,7 @@ void App::Render()
 
             /* --------------------- BLOOM --------------------- */
             glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.frameBufferHandle);
-            glDrawBuffer(GL_COLOR_ATTACHMENT3);
+            glDrawBuffer(GL_COLOR_ATTACHMENT4);
 
             glDisable(GL_DEPTH_TEST);
             glBlendFunc(GL_ONE, GL_ONE);
@@ -661,7 +674,7 @@ void App::Render()
             glBindVertexArray(vao);
 
             glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "uTexture"), 0);
-            glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "isDepth"), frameBuffer.depth && !frameBuffer.normal && !frameBuffer.position && !frameBuffer.color && !frameBuffer.emissive);
+            glUniform1i(glGetUniformLocation(texturedGeometryProgram.handle, "isDepth"), frameBuffer.depth && !frameBuffer.normal && !frameBuffer.position && !frameBuffer.color && !frameBuffer.bloom && !frameBuffer.emissive);
             glActiveTexture(GL_TEXTURE0);
            
             if (frameBuffer.color)
@@ -672,6 +685,8 @@ void App::Render()
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.positionAttachment);
             else if (frameBuffer.emissive)
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.emissiveAttachment);
+            else if (frameBuffer.bloom)
+                glBindTexture(GL_TEXTURE_2D, frameBuffer.bloomAttachment);
             else if (frameBuffer.depth)
                 glBindTexture(GL_TEXTURE_2D, frameBuffer.depthAttachment);
 

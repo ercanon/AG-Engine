@@ -36,6 +36,7 @@ public:
     GLuint normalAttachment;
     GLuint positionAttachment;
     GLuint emissiveAttachment;
+    GLuint bloomAttachment;
     GLuint depthAttachment;
 
     bool shader;
@@ -43,6 +44,7 @@ public:
     bool normal;
     bool position;
     bool emissive;
+    bool bloom;
     bool depth;
 };
 

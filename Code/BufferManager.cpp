@@ -65,6 +65,7 @@ FrameBuffer::FrameBuffer()
     normal = true;
     position = true;
     emissive = true;
+    bloom = true;
     depth = true;
 }
 
