@@ -1,5 +1,5 @@
 # AG-Engine
-Motor mediante shaders; desarrollado para la asignatura *Programacion Grafica Avanzada*.
+Motor con PBR y Multi-pass Bloom implementados; desarrollado para la asignatura *Programacion Grafica Avanzada* por **Raul Cano** y **Mario Hernandez**.
 
 ## Propiedades
 * Generacion de *Patricios* (exclusivamente *Patricios*).
